@@ -29,7 +29,7 @@ SkyBell is a trademark owned by [SkyBell Technologies, Inc](http://www.skybell.c
     }]
 }
 ```
-The username (email address) and password are the ones used to log into the SkyBell HD app.
+The `username` (email address) and `password` are the ones used to log into the SkyBell HD app.
 
 HomeKit accessories will be created automatically for all SkyBell HD (and SkyBell Trim Plus) doorbells associated with the account.
 
