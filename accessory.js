@@ -129,12 +129,6 @@ module.exports = class SkyBellAccessory {
                                         this.name + ' camera microphone');
         this.microphoneService
             .getCharacteristic(Characteristic.Mute)
-            .on('set', this.setMicrophoneMute.bind(this));
-        let microphoneMuted = 
-            this.microphoneService
-                .getCharacteristic(Characteristic.Mute).value;
-        this.microphoneService
-            .getCharacteristic(Characteristic.Mute)
             .setProps({perms: [Characteristic.Perms.READ,
                                Characteristic.Perms.NOTIFY]})
             .updateValue(false);
@@ -154,7 +148,6 @@ module.exports = class SkyBellAccessory {
         for (let id = 1; id <= MAX_STREAMS; ++id) {
             let stream = new SkyBellCameraStream(log, homebridge,
                                                  skybellDevice, id);
-            stream.setMicrophoneEnabled(!microphoneMuted);
             let options = stream.getCodecParameters();
             let streamController = new StreamController(id, options, stream);
             this.services.push(streamController.service);
@@ -498,14 +491,5 @@ module.exports = class SkyBellAccessory {
             this.motionSensorService
                 .updateCharacteristic(Characteristic.MotionDetected, false);
         }, DURATION_MOTION);
-    }
-
-    // Enable or disable the microphone
-    setMicrophoneMute(value, callback) {
-        this.log("setMicrophoneMute '" + this.name + "': mute=" + value);
-        this.streamControllers.forEach(controller => {
-            controller.cameraSource.setMicrophoneEnabled(!value);
-        });
-        callback();
     }
 }

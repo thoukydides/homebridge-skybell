@@ -47,7 +47,6 @@ module.exports = class SkyBellCameraStream {
 
         // Default configuration
         this.maxHeight = VIDEO_RESOLUTIONS[0][1];
-        this.microphoneEnabled = true;
         this.sessions = {};
         this.childProcesses = {};
     }
@@ -88,15 +87,6 @@ module.exports = class SkyBellCameraStream {
         if (this.maxHeight != height) {
             this.log("setResolution '" + this.name + "': " + height + 'p');
             this.maxHeight = height;
-        }
-    }
-
-    // Enable or disable audio streaming
-    setMicrophoneEnabled(enabled) {
-        if (this.microphoneEnabled != enabled) {
-            this.log("setMicrophoneEnabled '" + this.name + "': enabled="
-                     + enabled);
-            this.microphoneEnabled = enabled;
         }
     }
     
