@@ -16,7 +16,7 @@ SkyBell is a trademark owned by [SkyBell Technologies, Inc](http://www.skybell.c
    1. Select the SkyBell HD camera accessory to be added.
    1. Ignore the warning about it being an *Uncertified Accessory* (which applies to all non-commercial accessories) and select *Add Anyway*.
    1. Enter the 8-digit setup code that Homebridge displayed when launched (possibly configured via a `pin` value in `config.json`).
-   1. Place the camera and motion sensors in the same room (but not the Default Room).
+   1. Select a single room for the camera and motion sensors (but not the Default Room).
  
 ### Config.json Example
 ```JSON
@@ -40,8 +40,8 @@ HomeKit accessories will be created automatically for all SkyBell HD (and SkyBel
 Apple's Home app (as of iOS 11) does not support *Doorbell* services; their characteristics cannot be viewed or controlled, and they cannot be used as automation triggers. Only the *Motion Sensor* and *Camera RTP Stream Management* services of Doorbell accessories can be accessed.
 
 For full functionality use one of:
-* Matthias Hochgatterer's [Home](http://hochgatterer.me/home/) app
-* Elgato's [Eve](https://www.elgato.com/en/eve/eve-app) app.
+* Matthias Hochgatterer's [Home](http://hochgatterer.me/home/) app (recommended).
+* Elgato's [Eve](https://www.elgato.com/en/eve/eve-app) app (free).
 
 ### SkyBell API
 
