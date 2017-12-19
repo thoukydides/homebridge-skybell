@@ -16,7 +16,7 @@ SkyBell is a trademark owned by [SkyBell Technologies, Inc](http://www.skybell.c
    1. Select the SkyBell HD camera accessory to be added.
    1. Ignore the warning about it being an *Uncertified Accessory* (which applies to all non-commercial accessories) and select *Add Anyway*.
    1. Enter the 8-digit setup code that Homebridge displayed when launched (possibly configured via a `pin` value in `config.json`).
-   1. Select a single room for the camera and motion sensor (but not the Default Room).
+   1. Select a room for the camera and motion sensor. They should be located in the same room, but not the *Default Room*.
  
 ### Config.json Example
 ```JSON
@@ -37,23 +37,21 @@ HomeKit accessories will be created automatically for all SkyBell HD (and SkyBel
 
 ### SkyBell API
 
-SkyBell Technologies only share API details with selected third parties as part of their [SkyBell Connect API](http://www.skybell.com/skybell-connect/) program. This plugin instead uses the undocumented SkyBell cloud API used by their SkyBell HD app, but without the benefit of access to the Apple Push Notification service (APNs).
-
-Thank you to Wil Schrader for [reverse engineering](https://github.com/MisterWil/skybellpy) the SkyBell cloud protocol.
+SkyBell Technologies only share API details with selected third parties as part of their [SkyBell Connect API](http://www.skybell.com/skybell-connect/) program. This plugin instead uses the undocumented SkyBell cloud API used by their SkyBell HD app, as [reverse engineered](https://github.com/MisterWil/skybellpy) by Wil Schrader, but without the benefit of access to the Apple Push Notification service (APNs).
 
 ### Button and Motion Events
 
-Button presses and motion events are detected by polling the SkyBell cloud for new video recordings being available. This typically results in a delay of several minutes between the event occurring and HomeKit being notified (and hence any automation being triggered). However, this is still typically quicker than the SkyBell IFTTT channel.
+Button presses and motion events are detected by polling the SkyBell cloud for new video recordings being available. This typically results in a delay of several minutes between the event occurring and HomeKit being notified (and hence any automation being triggered). However, this is still typically quicker than the [SkyBell IFTTT](https://ifttt.com/skybell) channel.
 
 The SkyBell cloud servers appear to be very heavily loaded. They typically take a few seconds to respond to each API request. This plugin leaves 5 seconds between successive polls of the activity log.
 
 ### Apple Home App
 
 Apple's Home app (as of iOS 11) does not display *Doorbell* services; their characteristics cannot be viewed or controlled. For full functionality use one of:
-* Matthias Hochgatterer's [Home](http://hochgatterer.me/home/) app (recommended).
-* Elgato's [Eve](https://www.elgato.com/en/eve/eve-app) app (free).
+* Matthias Hochgatterer's [Home](http://hochgatterer.me/home/) app *(recommended)*.
+* Elgato's [Eve](https://www.elgato.com/en/eve/eve-app) app *(free)*.
 
-However, Apple's Home app can generate rich notifications for both doorbell button presses and motion events. These appear with a small snapshot image from the camera. A larger image and live video stream can be viewed by sliding the notification left and pressing View.
+However, Apple's Home app does generate rich notifications for both doorbell button presses and motion events. These appear with a small snapshot image from the camera. A larger image and live video stream can be viewed by sliding the notification left and selecting *View*.
 
 ### Video and Audio Streams
  
