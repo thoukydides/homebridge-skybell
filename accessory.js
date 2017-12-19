@@ -98,11 +98,6 @@ module.exports = class SkyBellAccessory {
             .addCharacteristic(Characteristic.Saturation)
             .on('set', this.setLedSaturation.bind(this));
         
-        // Add a motion sensor service for button presses
-        this.buttonPressService =
-            this.accessory.addService(Service.MotionSensor,
-                                      this.name + ' button press', 'button');
-        
         // Add a motion sensor service for motion detection
         this.motionSensorService =
             this.accessory.addService(Service.MotionSensor,
@@ -162,7 +157,6 @@ module.exports = class SkyBellAccessory {
         }
 
         // Link services
-        this.doorbellService.addLinkedService(this.buttonPressService);
         this.speakerService.addLinkedService(this.controlService);
         this.microphoneService.addLinkedService(this.controlService);
 
@@ -466,16 +460,6 @@ module.exports = class SkyBellAccessory {
         this.doorbellService
             .updateCharacteristic(Characteristic.ProgrammableSwitchEvent,
                                   SINGLE_PRESS);
-        this.buttonPressService
-            .updateCharacteristic(Characteristic.MotionDetected, true);
-
-        // End the motion detection after a fixed delay
-        clearTimeout(this.timerButtonPressEnd);
-        this.timerButtonPressEnd = setTimeout(() => {
-            this.log("buttonPressed '" + this.name + "' finished");
-            this.buttonPressService
-                .updateCharacteristic(Characteristic.MotionDetected, false);
-        }, DURATION_MOTION);
     }
 
     // Motion has been detected
