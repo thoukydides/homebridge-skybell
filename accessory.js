@@ -20,11 +20,14 @@ const MAX_STREAMS = 2;
 // Length of time to signal motion (milliseconds)
 const DURATION_MOTION = 10 * 1000;
 
+// Length of time to ignore other sources when a trigger occurs (milliseconds)
+const DURATION_SUPPRESS = 10 * 60 * 1000; // (10 minutes)
+
 // A Homebridge accessory for a SkyBell doorbell
 module.exports = class SkyBellAccessory {
     
     // Initialise an accessory
-    constructor(log, homebridge, skybellDevice) {
+    constructor(log, homebridge, skybellDevice, webhooks) {
         log("new SkyBellAccessory '" + skybellDevice.name + "': type='"
             + skybellDevice.cache.device.type + "'");
         this.log = log;
@@ -160,13 +163,24 @@ module.exports = class SkyBellAccessory {
         this.speakerService.addLinkedService(this.controlService);
         this.microphoneService.addLinkedService(this.controlService);
 
+        // No recent event triggers
+        this.recentTriggers = {};
+
         // Register for status updates from the SkyBell device
         skybellDevice.setOptions({
             callbackInfo:     this.updateInfo.bind(this),
             callbackSettings: this.updateSettings.bind(this),
-            callbackButton:   this.buttonPressed.bind(this),
-            callbackMotion:   this.motionDetected.bind(this)
+            callbackButton:   () => { this.trigger('cloud', 'button') },
+            callbackMotion:   () => { this.trigger('cloud', 'motion') }
         });
+
+        // Register for webhooks if configured
+        if (webhooks) {
+            webhooks.addHook('trigger/button', { name: skybellDevice.name },
+                             () => { this.trigger('webhook', 'button') });
+            webhooks.addHook('trigger/motion', { name: skybellDevice.name },
+                             () => { this.trigger('webhook', 'motion') });
+        }
     }
 
     // Use the avatar image to retrieve a still snapshot
@@ -475,5 +489,34 @@ module.exports = class SkyBellAccessory {
             this.motionSensorService
                 .updateCharacteristic(Characteristic.MotionDetected, false);
         }, DURATION_MOTION);
+    }
+
+    // A button press or motion event trigger has been received
+    trigger(source, type) {
+        // Check whether the event has come from another source recently
+        let recent = this.recentTriggers[type];
+        if (recent && (source != recent.source)) {
+            return this.log("trigger '" + this.name + "': Suppressing "
+                            + type + ' event from ' + source
+                            + ' due to recent trigger from ' + recent.source);
+        }
+
+        // Suppress other sources of this event for a short period
+        if (recent) clearTimeout(recent.timer);
+        this.recentTriggers[type] = {
+            source: source,
+            timer:  setTimeout(() => {
+                        this.log('Re-enabling ' + type
+                                 + ' triggers from all sources');
+                        this.recentTriggers[type] = null;
+                    }, DURATION_SUPPRESS)
+        };
+
+        // Process this event trigger
+        if (type == 'button') {
+            this.buttonPressed();
+        } else if (type == 'motion') {
+            this.motionDetected();
+        }
     }
 }

@@ -5,6 +5,7 @@
 
 let SkyBellAccount = require('./skybell_account');
 let SkyBellAccessory = require('./accessory');
+let Webhooks = require('./webhooks');
 
 // Platform identifiers
 const PLUGIN_NAME = 'homebridge-skybell';
@@ -55,13 +56,21 @@ class SkyBellPlatform {
             log:         this.log.debug.bind(this.log),
             callbackAdd: this.addAccessory.bind(this)
         });
+
+        // Start the webhooks server if configured
+        if (this.config.port) {
+            this.webhooks = new Webhooks(this.config.port, {
+                log:     this.log.debug.bind(this.log),
+                secret:  this.config.secret
+            });
+        }
     }
 
     // Create a new accessory
     addAccessory(skybellDevice) {
         this.log("addAccessory '" + skybellDevice.name + "'");
         let skybell = new SkyBellAccessory(this.log, this.homebridge,
-                                           skybellDevice);
+                                           skybellDevice, this.webhooks);
         this.homebridge.publishCameraAccessories(PLUGIN_NAME,
                                                  [skybell.accessory]);
     }
