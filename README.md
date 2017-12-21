@@ -95,9 +95,11 @@ Obviously the name, port number, and secret should be replaced by appropriate va
 
 ### Duplicate Event Suppression
 
-Enabling webhooks does not prevent this plugin from polling the SkyBell cloud API. In order to prevent duplicate HomeKit triggers if a webhook event is received then events from the SkyBell cloud are suppressed for a period of 10 minutes afterwards (or vice versa if the SkyBell cloud event occurred first). This timeout is implemented indenendeptly for each doorbell, and for button press and motion events.
+Enabling webhooks does not prevent this plugin from polling the SkyBell cloud API. Events can be triggered from either source.
 
-In practice this means that the quickest event notification will be used.
+In order to prevent duplicate HomeKit triggers, if a webhook event is received then this plugin suppresses events from the SkyBell cloud for a period of 10 minutes afterwards (or vice versa if the SkyBell cloud event occurred first). This behaviour is implemented independently for each combination of doorbell and event type (button press or motion).
+
+In practice this means that the event notification will be used from the quickest source.
 
 ### IFTTT Integration
 
