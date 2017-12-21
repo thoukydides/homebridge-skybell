@@ -67,9 +67,9 @@ This plugin currently only supports audio in a single direction: from the SkyBel
 
 ## Webhooks
 
-To enable the option of quicker button press and motion events this plugin supports optional webhooks. These are enabled by specifying the port number for the web server using the `port` value in the `config.json` file.
+This plugin supports webhooks that can be used to supplement polling of the SkyBell cloud to detect button press and motion events. Use of the webhooks is entirely optional.
 
-An optional `secret` phrase may also be specified in the `config.json` file. If this is present then the same value must be included in all webhook requests for authentication.
+Webhooks are enabled by adding a `port` value in the `config.json` file to specify the port number on which the web server should listen for requests. An optional `secret` phrase may also be specified to authenticate webhook requests.
 
 Two URLs are supported corresponding to button press and motion events:
 * `/homebridge-skybell/trigger/button`
@@ -82,7 +82,7 @@ To trigger an event issue a `PUT` request to one of these URLs with the followin
     "secret":       "My webhooks secret"
 }
 ```
-The `name` should be the name of the doorbell as configured in the SkyBell HD app.
+The `name` should be the name of the doorbell as configured in the SkyBell HD app, and the `secret` should match the value in the `config.json` file.
 
 ### Command Line Trigger
 
