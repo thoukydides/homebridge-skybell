@@ -103,6 +103,8 @@ In practice this means that the event notification will be used from the quickes
 
 ### IFTTT Integration
 
+*(This particular example is of dubious benefit because the SkyBell IFTTT channel is typically slower than this plugin polling the SkyBell cloud directly.)*
+
 This plugin's webhooks can be invoked from an [IFTTT](https://ifttt.com/) applet. For example to trigger from [SkyBell IFTTT](https://ifttt.com/skybell) channel events an applet should be created as follows:
 * **If this**
   * *SkyBell HD*
@@ -120,8 +122,6 @@ Again, the host name, port number and secret should be replaced by appropriate v
 A suitable port forwarding rule may need to be configured so that IFTTT can access the webhooks server if it behind NAT (network address translation). It may also be necessary to use a dynamic DNS host such as [Duck DNS](http://www.duckdns.org/) to obtain a static host name.
 
 Separate applets will need to be created for each doorbell. For motion detection events the *Your SkyBell HD detected motion* trigger should be used instead.
-
-*(This particular example is of dubious benefit because the SkyBell IFTTT channel is typically slower than this plugin polling the SkyBell cloud directly.)*
 
 ## License
 
