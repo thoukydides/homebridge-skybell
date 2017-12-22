@@ -9,7 +9,7 @@ let uuid = require('uuid4');
 // Base URL for the SkyBell cloud services
 const SKYBELL_URL = 'https://cloud.myskybell.com/api/v3/';
 
-// Global counter to identify difference instances in log output
+// Global counter to identify different instances in log output
 let instanceCount = 0;
 
 // Low-level access to the SkyBell cloud API
