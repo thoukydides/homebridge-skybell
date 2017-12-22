@@ -105,7 +105,7 @@ module.exports = class Webhooks {
 
     // Check whether a request is authorised
     isAuthorised(body) {
-        return (this.options.secret == null)
+        return (!this.options.secret)
                || (body.secret == this.options.secret);
     }
 
