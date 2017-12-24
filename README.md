@@ -41,7 +41,7 @@ HomeKit accessories will be created automatically for all SkyBell HD (and SkyBel
 
 ### SkyBell API
 
-SkyBell Technologies only share API details with selected third parties as part of their [SkyBell Connect API](http://www.skybell.com/skybell-connect/) program. This plugin instead uses the undocumented SkyBell cloud API used by their SkyBell HD app, as [reverse engineered](https://github.com/MisterWil/skybellpy) by Wil Schrader, but without the benefit of access to the Apple Push Notification service (APNs).
+SkyBell Technologies only share API details with selected third parties as part of their [SkyBell Connect API](http://www.skybell.com/skybell-connect/) program. This plugin instead uses the undocumented SkyBell cloud API used by their SkyBell HD app, as [reverse engineered](https://github.com/MisterWil/skybellpy) by Wil Schrader, but without the benefit of mobile push notifcations via Apple Push Notification service (APNs) or Google Cloud Messaging (GCM) for Android.
 
 ### Button and Motion Events
 
