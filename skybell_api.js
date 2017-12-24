@@ -32,8 +32,8 @@ module.exports = class SkyBellAPI {
         this.token = null;
 
         // Generate random identifiers
-        this.appId = uuid();
-        this.clientId = uuid();
+        this.appUuid = uuid();
+        this.clientUuid = uuid();
     }
 
     // Create new API object using same credentials but different identifiers
@@ -59,7 +59,7 @@ module.exports = class SkyBellAPI {
 
     // Logout from the SkyBell cloud
     logout(callback) {
-        this.request('POST', 'logout', { appId: this.appId }, callback);
+        this.request('POST', 'logout', { appId: this.appUuid }, callback);
     }
 
     // List of application
@@ -79,7 +79,7 @@ module.exports = class SkyBellAPI {
     /*
     register(protocol, token, callback) {
         this.request('POST', 'register', {
-            appId:    this.appId,
+            appId:    this.appUuid,
             protocol: protocol,
             token:    token
         }, callback);
@@ -205,8 +205,8 @@ module.exports = class SkyBellAPI {
             json:    true,
             headers: {
                 Authorization:         'Bearer ' + this.token,
-                'x-skybell-app-id':    this.appId,
-                'x-skybell-client-id': this.clientId
+                'x-skybell-app-id':    this.appUuid,
+                'x-skybell-client-id': this.clientUuid
             }
         };
         if (body) options.body = body;
@@ -224,9 +224,9 @@ module.exports = class SkyBellAPI {
             if (response && response.statusCode < 400) {
                 callback(null, body);
             } else if (body) {
-                if (body.errors && body.errors.message) {
+                if (body.error && body.error.message) {
                     callback(new Error('SkyBell API error: '
-                                       + body.errors.message));
+                                       + body.error.message));
                 } else if (body.message) {
                     callback(new Error('SkyBell API error: ' + body.message));
                 } else {
