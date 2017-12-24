@@ -222,23 +222,16 @@ module.exports = class SkyBellAPI {
                      + (err || response.statusMessage)
                      + ' +' + (Date.now() - startTime) + 'ms ');
             if (response && response.statusCode < 400) {
-                callback(null, body);
-            } else if (body) {
-                if (body.error && body.error.message) {
-                    callback(new Error('SkyBell API error: '
-                                       + body.error.message));
-                } else if (body.message) {
-                    callback(new Error('SkyBell API error: ' + body.message));
-                } else {
-                    callback(new Error('SkyBell API error: '
-                                       + JSON.stringify(body)));
-                }
-            } else if (err) {
-                callback(err);
-            } else {
-                callback(new Error('SkyBell API error: '
-                                   + response.statusMessage));
+                return callback(null, body);
             }
+
+            // Attempt to extract a useful error message
+            let msg = err || response.statusMessage;
+            if (body) {
+                let e = body.errors || body.error || body;
+                msg = e.message || e.name || JSON.stringify(e);
+            }
+            callback(new Error('SkyBell API error: ' + msg));
         });
     }
 }
