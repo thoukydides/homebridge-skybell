@@ -31,9 +31,9 @@ SkyBell is a trademark owned by [SkyBell Technologies, Inc](http://www.skybell.c
     }]
 }
 ```
-The `username` (email address) and `password` should be set to the credentials used to log into the SkyBell HD app. HomeKit accessories will be created automatically for all SkyBell HD (and SkyBell Trim Plus) doorbells associated with the account.
+The `username` (email address) and `password` should be set to the credentials used to log into the SkyBell HD app. The plugin will automatically create HomeKit accessories for all SkyBell HD (and SkyBell Trim Plus) doorbells associated with the account.
 
-The `port` and `secret` values are optional. Unless [webhooks](https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks) are being used they should be omitted.
+The `port` and `secret` values are optional. They should be omitted unless [webhooks](https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks) are being used .
 
 ## Notes
 
