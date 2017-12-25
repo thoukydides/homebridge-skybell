@@ -61,9 +61,9 @@ However, Apple's Home app does generate rich notifications for both doorbell but
  
 Viewing the live video stream from a SkyBell via HomeKit results in an *On demand* video being recorded, just as it does with the official SkyBell HD app.
 
-For some reason the SkyBell cloud terminates the live video stream after approximately 45 seconds when viewed via HomeKit (instead of 5 minutes with the official SkyBell HD app). It is not obvious why this occurs.
+For some reason the SkyBell cloud terminates the live video stream after approximately 45 seconds when viewed via this plugin (instead of 5 minutes with the official SkyBell HD app). It is not obvious why this occurs.
 
-This plugin currently only supports audio in a single direction: from the SkyBell's microphone to HomeKit. This is because the audio streams in each direction use the same ports, but unfortunately FFmpeg (which is used by this plugin to transcode the audio and video) does not support sharing a single port in this way for SRTP streams.
+This plugin currently only supports audio in a single direction: from the SkyBell's microphone to HomeKit. This is because the audio streams in each direction use the same ports, but unfortunately FFmpeg (which is used by this plugin to transcode the audio and video) does not support sharing a single port between two SRTP streams.
 
 ## License
 
