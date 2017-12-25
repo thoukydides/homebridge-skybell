@@ -39,15 +39,15 @@ The `port` and `secret` values are optional. They should be omitted unless [webh
 
 ### SkyBell API
 
-SkyBell Technologies only share API details with selected third parties as part of their [SkyBell Connect API](http://www.skybell.com/skybell-connect/) program. This plugin instead uses the undocumented SkyBell cloud API used by their SkyBell HD app, as [reverse engineered](https://github.com/MisterWil/skybellpy) by Wil Schrader, but without the benefit of mobile push notifcations via Apple Push Notification service (APNs) or Google Cloud Messaging (GCM) for Android.
+SkyBell Technologies only share API details with selected third parties through their [SkyBell Connect API](http://www.skybell.com/skybell-connect/) program. Instead this plugin uses the [unpublished API](https://github.com/thoukydides/homebridge-skybell/wiki/Protocol-HTTPS) that the SkyBell HD app uses to communicate with the SkyBell cloud.
+
+Without access to mobile push notifcations (Apple Push Notification service (APNs) or Google Cloud Messaging (GCM) for Android) this plugin has to poll the API for changes. It leaves 5 seconds between successive requests. Unfortunately, the SkyBell cloud servers appear to be very heavily loaded, with responses to each API request typically taking a few seconds.
 
 ### Button and Motion Events
 
-By default button presses and motion events are detected by polling the SkyBell cloud for new video recordings being available. This typically results in a delay of several minutes between the event occurring and HomeKit being notified (and hence any automation being triggered).
+By default button presses and motion events are detected by polling the SkyBell cloud for new video recordings being available. The doorbell only uploads the video after it has stopped recording so this typically results in a delay of several minutes between the event occurring and HomeKit being notified (and hence any automation being triggered).
 
-The SkyBell cloud servers appear to be very heavily loaded. They typically take a few seconds to respond to each API request. This plugin leaves 5 seconds between successive polls of the activity log.
-
-If `tcpdump` can be run on the gateway/router between the doorbell and the internet then much quicker detection of button presses and motion events is possible. This makes the HomeKit automation triggers far more useful. To use this option configure [webhooks](https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks) and install the [doorbell packet sniffer](https://github.com/thoukydides/homebridge-skybell/wiki/Low-Latency-Events).
+The delay can be significantly reduced by snooping on the [packets between the doorbell and its cloud services](https://github.com/thoukydides/homebridge-skybell/wiki/Protocol-CoAP). If `tcpdump` can be run on the gateway/router between the doorbell and the internet then configure [webhooks](https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks) and install the [doorbell packet sniffer](https://github.com/thoukydides/homebridge-skybell/wiki/Low-Latency-Events).
 
 ### Apple Home App
 
