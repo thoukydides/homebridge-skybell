@@ -57,6 +57,10 @@ Apple's Home app (as of iOS 11) does not display *Doorbell* services; their char
 
 However, Apple's Home app does generate rich notifications for both doorbell button presses and motion events. These appear with a small snapshot image from the camera. A larger image and live video stream can be viewed by sliding the notification left and selecting *View*. The dootbell button notification is enabled by default, but the motion event notification has to be explicitly enabled within the app.
 
+### Snapshot Image
+
+This plugin uses the *avatar* image that the SkyBell HD periodically pushes to the SkyBell cloud. This is typically only updated once per hour. The update time shown within the HomeKit app will not indicate when the image was actually last updated.
+
 ### Video and Audio Streams
  
 Viewing the live video stream from a SkyBell via HomeKit results in an *On demand* video being recorded, just as it does with the official SkyBell HD app.
