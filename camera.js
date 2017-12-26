@@ -22,6 +22,10 @@ const VIDEO_RESOLUTIONS = [
     [ 320,  180, Math.min(MAX_FPS, 15)]  // Apple watch 16:9
 ];
 
+// FFmpeg drawtext filter configuration for recorded video overlay
+const OVERLAY_ARGS = 'fontsize=18:x=(w-tw)/2:y=2:box=1:boxborderw=2'
+                     + ':fontcolor=red:boxcolor=black@0.7';
+
 // Possible FFmpeg commands and options in order to be tried
 const FFMPEG_COMMANDS = [
     ['ffmpeg', ['-protocol_whitelist', 'rtp,udp,pipe']],
@@ -87,6 +91,15 @@ module.exports = class SkyBellCameraStream {
         if (this.maxHeight != height) {
             this.log("setResolution '" + this.name + "': " + height + 'p');
             this.maxHeight = height;
+        }
+    }
+
+    // Set the activity to replay instead of streaming live video
+    setActivity(activity) {
+        if (this.log != this.activity) {
+            this.log("setActivityVideo '" + this.name + "': "
+                     + (activity ? activity.createdAt : 'none'));
+            this.activity = activity;
         }
     }
     
@@ -206,14 +219,37 @@ module.exports = class SkyBellCameraStream {
     startCall(session, callback) {
         this.log("startCall '" + this.name + "'");
 
+        // Start a live call if there was no recent activity
+        let activity = this.activity;
+        if (!activity) return this.startLiveCall(session, callback);
+        
+        // Retrieve the URL for the recorded video
+        this.skybellDevice.getVideoUrl(activity, (err, url) => {
+            if (err) {
+                // Fallback to live stream if unable to obtain video URL
+                this.log.warn("Failed to obtain URL for video recorded by '"
+                              + this.name + "': " + err);
+                return this.startLiveCall(session, callback);
+            }
+            
+            // Spawn FFmpeg to download and transcode the recorded video
+            let date = new Date(activity.createdAt);
+            let overlay = 'Recorded ' + date.toLocaleString();
+            this.startPlayback(url, overlay, session.video, session.audio,
+                               callback);
+        });
+    }
+
+    // Start a live call
+    startLiveCall(session, callback) {
+        this.log("startLiveCall '" + this.name + "'");
+
         // Start a call to the SkyBell device to obtain the SRTP configuration
         this.skybellDevice.startCall(this.id, (err, call) => {
             if (err) return callback(err);
             // Spawn FFmpeg to transcode the video and audio streams
-            this.startAudioVideo(call.incomingVideo, call.incomingAudio,
-                                 session.video, session.audio, (err) => {
-                if (err) return callback(err);
-            });
+            this.startStream(call.incomingVideo, call.incomingAudio,
+                             session.video, session.audio, callback);
         });
     }
 
@@ -230,9 +266,37 @@ module.exports = class SkyBellCameraStream {
         });
     }
 
-    // Start an FFmpeg process to transcode the video
-    startAudioVideo(videoIn, microphoneIn, videoOut, microphoneOut, callback) {
-        this.log("startFfmpeg '" + this.name + "'");
+    // Start an FFmpeg process for a previously recorded video
+    startPlayback(videoIn, overlay, videoOut, microphoneOut, callback) {
+        this.log("startPlayback '" + this.name + "'");
+
+        // Add the overlay text to the video filter
+        let text = overlay.replace(/[\\':]/g, '\\$&')
+                          .replace(/[\\'\[\],;]/g, '\\$&');
+        let extraFilter = ',drawtext=' + OVERLAY_ARGS + ':text=' + text;
+        let argsOut = this.ffmpegOutputArgs(videoOut, microphoneOut);
+        argsOut[1] += extraFilter;
+
+        // FFmpeg parameters
+        let args = [
+            '-threads',            0,
+            '-loglevel',           'warning',
+
+            // Input stream is the URL of the recorded MP4 video
+            '-re',
+            '-i',                  videoIn,
+
+            // Output streams
+            ...argsOut
+        ];
+
+        // Punch through the firewall and then spawn the FFmpeg process
+        this.spawnFfmpeg('Playback', args, [], callback);
+    }
+
+    // Start an FFmpeg process for a live stream
+    startStream(videoIn, microphoneIn, videoOut, microphoneOut, callback) {
+        this.log("startStream '" + this.name + "'");
 
         // Session Description Protocol (SDP) file for the input streams
         let sdpIn = [
@@ -262,6 +326,33 @@ module.exports = class SkyBellCameraStream {
             'a=ssrc:'   + microphoneIn.ssrc
         ];
 
+        // FFmpeg parameters
+        let args = [
+            '-threads',            0,
+            '-loglevel',           'warning',
+
+            // Input streams are (mostly) described by the SDP file
+            '-acodec',             'pcm_s16le', // (SDP specifies pcm_s16be)
+            '-i',                  '-', // (SDP file provided via stdin)
+
+            // Video filter
+            '-vf',                 'scale=' + videoOut.width + ':'
+                                   + videoOut.height,
+
+            // Output streams
+            ...this.ffmpegOutputArgs(videoOut, microphoneOut)
+        ];
+
+        // Punch through the firewall and then spawn the FFmpeg process
+        let firewallPorts = [videoIn.port, microphoneIn.port];
+        this.sendPunchPackets(videoIn.server, firewallPorts, (err) => {
+            if (err) return callback(err);
+            this.spawnFfmpeg('Stream', args, sdpIn, callback);
+        });
+    }
+
+    // Common FFmpeg output parameters
+    ffmpegOutputArgs(videoOut, microphoneOut) {
         // Pick a lower video resolution if requested is higher than the source
         if (this.maxHeight < videoOut.height) {
             let resolution = VIDEO_RESOLUTIONS.find(resolution => {
@@ -274,14 +365,11 @@ module.exports = class SkyBellCameraStream {
             videoOut.height = resolution[1];
         }
 
-        // FFmpeg parameters
+        // FFmpeg output parameters
         let args = [
-            '-threads',            0,
-            '-loglevel',           'warning',
-
-            // Input streams are (mostly) described by the SDP file
-            '-acodec',             'pcm_s16le', // (SDP specifies pcm_s16be)
-            '-i',                  '-', // (SDP file provided via stdin)
+            // Video filter to adjust the resolution
+            '-vf',                 'scale=' + videoOut.width
+                                            + ':' + videoOut.height,
 
             // Video encoding options (always H.264/AVC)
             '-vcodec',             'libx264',
@@ -290,8 +378,6 @@ module.exports = class SkyBellCameraStream {
             '-tune',               'zerolatency',
             '-profile:v',          ['baseline', 'main', 'high'][videoOut.profile],
             '-level:v',            ['3.1', '3.2', '4.0'][videoOut.level],
-            '-vf',                 'scale=' + videoOut.width
-                                            + ':' + videoOut.height,
             '-b:v',                videoOut.max_bit_rate + 'K',
             '-bufsize',            videoOut.max_bit_rate + 'K',
 
@@ -342,13 +428,9 @@ module.exports = class SkyBellCameraStream {
                 + '?rtcpport=' + microphoneOut.port + '&localrtcpport='
                 + microphoneOut.port
         );
-        
-        // Punch through the firewall and then spawn the FFmpeg process
-        let firewallPorts = [videoIn.port, microphoneIn.port];
-        this.sendPunchPackets(videoIn.server, firewallPorts, (err) => {
-            if (err) return callback(err);
-            this.spawnFfmpeg('A/V', args, sdpIn, callback);
-        });
+
+        // Return the arguments
+        return args;
     }
 
     // Send dummy packets to setup the reverse route through the firewall

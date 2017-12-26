@@ -23,6 +23,9 @@ const DURATION_MOTION = 10 * 1000;
 // Length of time to ignore other sources when a trigger occurs (milliseconds)
 const DURATION_SUPPRESS = 10 * 60 * 1000; // (10 minutes)
 
+// Length of time to play recording instead of streaming live (milliseconds)
+const DURATION_RECORDED = 30 * 60 * 1000; // (30 minutes)
+
 // A Homebridge accessory for a SkyBell doorbell
 module.exports = class SkyBellAccessory {
     
@@ -170,8 +173,10 @@ module.exports = class SkyBellAccessory {
         skybellDevice.setOptions({
             callbackInfo:     this.updateInfo.bind(this),
             callbackSettings: this.updateSettings.bind(this),
-            callbackButton:   () => { this.trigger('cloud', 'button') },
-            callbackMotion:   () => { this.trigger('cloud', 'motion') }
+            callbackButton:
+                activity => { this.trigger('cloud', 'button', activity) },
+            callbackMotion:
+                activity => { this.trigger('cloud', 'motion', activity) }
         });
 
         // Register for webhooks if configured
@@ -491,8 +496,29 @@ module.exports = class SkyBellAccessory {
         }, DURATION_MOTION);
     }
 
+    // Set the last activity
+    setLastActivity(activity) {
+        this.lastActivity = activity;
+
+        // Set the activity to replay instead of streaming live video
+        this.streamControllers.forEach(controller => {
+            controller.cameraSource.setActivity(activity);
+        });
+    }
+
     // A button press or motion event trigger has been received
-    trigger(source, type) {
+    trigger(source, type, activity) {
+        // Remeber the most recent activity (of any type) for a short period
+        if (activity) {
+            this.log("trigger '" + this.name + "': Remembering activity");
+            this.setLastActivity(activity);
+            clearTimeout(this.timerLastActivity);
+            this.timerLastActivity = setTimeout(() => {
+                this.log("trigger '" + this.name + "': Forgetting activity");
+                this.lastActivity(null);
+            }, DURATION_RECORDED);
+        }
+
         // Check whether the event has come from another source recently
         let recent = this.recentTriggers[type];
         if (recent && (source != recent.source)) {
@@ -506,8 +532,8 @@ module.exports = class SkyBellAccessory {
         this.recentTriggers[type] = {
             source: source,
             timer:  setTimeout(() => {
-                        this.log('Re-enabling ' + type
-                                 + ' triggers from all sources');
+                        this.log("trigger '" + this.name + "': Re-enabling "
+                                 + type + ' triggers from all sources');
                         this.recentTriggers[type] = null;
                     }, DURATION_SUPPRESS)
         };

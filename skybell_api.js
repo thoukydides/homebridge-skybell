@@ -75,16 +75,17 @@ module.exports = class SkyBellAPI {
                      null, callback);
     }
     
-    // Register an application
-    /*
-    register(protocol, token, callback) {
+    // Register and unregister an application
+    registerApp(protocol, token, callback) {
         this.request('POST', 'register', {
             appId:    this.appUuid,
             protocol: protocol,
             token:    token
         }, callback);
     }
-    */
+    unregisterApp(protocol, token, callback) {
+        this.request('POST', 'unregister', { appId: this.appUuid }, callback);
+    }
     
     // Get information about a user
     getUserMe(callback) {
@@ -149,6 +150,16 @@ module.exports = class SkyBellAPI {
     getActivitiesByDevice(deviceId, callback) {
         this.request('GET', 'devices/' + deviceId + '/activities/',
                      null, callback);
+    }
+
+    // Get the video URL for an activity
+    getActivityVideoBySubscription(subscriptionId, callId, callback) {
+        this.request('GET', 'subscriptions/' + subscriptionId + '/activities/'
+                     + callId + '/video/', null, callback);
+    }
+    getActivityVideoByDevice(deviceId, callId, callback) {
+        this.request('GET', 'devices/' + deviceId + '/activities/' + callId
+                     + '/video/', null, callback);
     }
 
     // Start and stop live SRTP streams (video in, audio in, and audio out)

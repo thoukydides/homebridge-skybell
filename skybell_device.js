@@ -198,6 +198,18 @@ module.exports = class SkyBellDevice {
                              + this.name + "': " + activity.event);
         }
     }
+
+    // Obtain the URL for the video associated with an activity
+    getVideoUrl(activity, callback) {
+        this.api.getActivityVideoByDevice(this.deviceId, activity.id,
+                                          (err, body) => {
+            if (err) {
+                this.options.log("Failed to retrieve video " + activity.id
+                                 + " from SkyBell '" + this.name + "': " + err);
+            }
+            callback(err, body.url);
+        });
+    }
     
     // Obtain the current avatar
     getAvatar(callback) {
