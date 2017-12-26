@@ -47,7 +47,7 @@ Without access to mobile push notifcations (Apple Push Notification service (APN
 
 By default button presses and motion events are detected by polling the SkyBell cloud for new video recordings being available. The doorbell only uploads the video after it has stopped recording so this typically results in a delay of several minutes between the event occurring and HomeKit being notified (and hence any automation being triggered).
 
-The delay can be significantly reduced by snooping on the [packets between the doorbell and its cloud services](https://github.com/thoukydides/homebridge-skybell/wiki/Protocol-CoAP). If `tcpdump` can be run on the gateway/router between the doorbell and the internet then configure [webhooks](https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks) and install the [doorbell packet sniffer](https://github.com/thoukydides/homebridge-skybell/wiki/Doorbell-Packet-Sniffer).
+The delay can be significantly reduced by snooping on the [packets between the doorbell and its cloud services](https://github.com/thoukydides/homebridge-skybell/wiki/Protocol-CoAP). If `tcpdump` can be run on the gateway/router between the doorbell and the internet then configure [webhooks](https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks) and install the [doorbell packet sniffer](https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks-Sniffer).
 
 ### Apple Home App
 
