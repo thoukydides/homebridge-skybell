@@ -304,7 +304,7 @@ module.exports = class SkyBellCameraStream {
         let vfExtra = ',drawtext=' + OVERLAY_ARGS.join(':') + ':text=' + text;
         args[args.indexOf('-vf') + 1] += vfExtra;
 
-        // Punch through the firewall and then spawn the FFmpeg process
+        // Spawn the FFmpeg process
         this.spawnFfmpeg('Playback', args, [], callback);
     }
 

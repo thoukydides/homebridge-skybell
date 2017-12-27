@@ -111,6 +111,7 @@ module.exports = class SkyBellDevice {
                         this.newActivity(body[i]);
                     }
                 }
+                this.lastActivity = body[0];
                 this.lastActivityId = body.length ? body[0].id : 'none';
             }
             
@@ -137,26 +138,6 @@ module.exports = class SkyBellDevice {
 
     // Settings have been read
     newSettings(settings) {
-        // do_not_disturb:     'true' (indoor chime disabled) | 'false'
-        // chime_level:        0 (off) | 1 (low) | 2 (medium) | 3 (high)
-        // green_r:            0-255
-        // green_g:            0-255
-        // green_b:            0-255
-        // led_intensity:      0 (off) | 25 (low) | 62 (medium) | 100 (high)
-        // motion_policy:      'disabled' | 'call'
-        // motion_threshold:   100 (low) | 50 (medium) | 32 (high)
-        // video_profile:      0 (1080p) | 1 (720p) | 2 (720p) | 3 (480p)
-        // low_front_led_dac:  integer
-        // med_front_led_dac:  integer
-        // high_front_led_dac: integer
-        // low_lux_threshold:  integer
-        // med_lux_threshold:  integer
-        // high_lux_threshold: integer
-        // do_not_ring:        'true' | 'false'
-        // ring_tone:          integer
-        // mic_volume:         integer
-        // speaker_volume:     integer
-        // digital_doorbell:   'true' | 'false'
         this.cache.settings = settings;
         this.options.callbackSettings(settings);
     }
@@ -213,31 +194,33 @@ module.exports = class SkyBellDevice {
     
     // Obtain the current avatar
     getAvatar(callback) {
-        this.api.getAvatarByDevice(this.deviceId, (err, body) => {
+        this.api.getAvatarByDevice(this.deviceId, (err, avatar) => {
             if (err) {
                 this.options.log("Failed to read SkyBell '" + this.name
                                  + "' avatar: " + err);
-                callback(err);
-            } else {
-                // URL obtained, so download the actual avatar image
-                let logPrefix = 'Avatar download: ';
-                this.options.log(logPrefix + body.url);
-                let startTime = Date.now();
-                request({ url: body.url, encoding: null },
-                        (err, response, image) => {
-                    this.options.log(logPrefix
-                                     + (err || response.statusMessage)
-                                     + ' +' + (Date.now() - startTime) + 'ms ');
-                    if (err) {
-                        callback(err);
-                    } else if (image) {
-                        let type = 'jpg'; // (should extract from body.url)
-                        callback(null, image, type);
-                    } else {
-                        callback(new Error('No avatar image retrieved'));
-                    }
-                });
+                return callback(err);
             }
+
+            // Check whether the most recent activity has a newer image
+            let url = avatar.url;
+            if (this.lastActivity
+                && (avatar.createdAt < this.lastActivity.createdAt)) {
+                this.options.log("SkyBell '" + this.name
+                                 + "' activity is more recent than avatar");
+                url = this.lastActivity.media;
+            }
+
+            // URL obtained, so download the actual avatar image
+            let logPrefix = 'Avatar download: ';
+            this.options.log(logPrefix + url);
+            let startTime = Date.now();
+            request({ url: url, encoding: null }, (err, response, image) => {
+                this.options.log(logPrefix + (err || response.statusMessage)
+                                 + ' +' + (Date.now() - startTime) + 'ms ');
+                if (err) return callback(err);
+                let type = url.match(/\.(\w+)\?/);
+                callback(null, image, type ? type[1] : 'jpg');
+            });
         });
     }
 
