@@ -62,12 +62,12 @@ However, Apple's Home app does generate rich notifications for both doorbell but
 This plugin uses the *avatar* image that the SkyBell HD periodically pushes to the SkyBell cloud. This is typically only updated once per hour. The update time shown within the HomeKit app will not indicate when the image was actually last updated.
 
 ### Video and Audio Streams
- 
-Viewing the live video stream from a SkyBell via HomeKit results in an *On demand* video being recorded, just as it does with the official SkyBell HD app.
 
-For some reason the SkyBell cloud terminates the live video stream after approximately 45 seconds when viewed via this plugin (instead of 5 minutes with the official SkyBell HD app). It is not obvious why this occurs.
+Viewing the doorbell's video via HomeKit will normally establish a live stream showing the current camera image. However, within 30 minutes of a video being recorded (in response to a button press or motion event) this plugin will instead play that recording. In both cases the Home and Eve apps will badge the video as *LIVE*, so to make it clear when a recording is being played this plugin superimposes a caption at the top of recorded videos. Only recordings made after Homebridge is started are played.
 
-This plugin currently only supports audio in a single direction: from the SkyBell's microphone to HomeKit. This is because the audio streams in each direction use the same ports, but unfortunately FFmpeg (which is used by this plugin to transcode the audio and video) does not support sharing a single port between two SRTP streams.
+Viewing the live stream from a SkyBell HD via HomeKit results in an *On demand* video being recorded, just as it does with the official SkyBell HD app. For some reason the SkyBell cloud terminates the live video stream after approximately 45 seconds when viewed via this plugin (instead of 5 minutes with the official SkyBell HD app). It is not obvious why this occurs.
+
+This plugin currently only supports audio in a single direction: from the doorbell's microphone to HomeKit. This is because the audio streams in each direction use the same ports, but unfortunately FFmpeg (which is used by this plugin to transcode the audio and video) does not support sharing a single port between two SRTP streams.
 
 ## License
 
