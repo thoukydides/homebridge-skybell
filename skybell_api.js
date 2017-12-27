@@ -83,7 +83,7 @@ module.exports = class SkyBellAPI {
             token:    token
         }, callback);
     }
-    unregisterApp(protocol, token, callback) {
+    unregisterApp(callback) {
         this.request('POST', 'unregister', { appId: this.appUuid }, callback);
     }
     
