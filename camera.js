@@ -23,8 +23,15 @@ const VIDEO_RESOLUTIONS = [
 ];
 
 // FFmpeg drawtext filter configuration for recorded video overlay
-const OVERLAY_ARGS = 'fontsize=18:x=(w-tw)/2:y=2:box=1:boxborderw=2'
-                     + ':fontcolor=red:boxcolor=black@0.7';
+const OVERLAY_ARGS = [
+    'fontsize=18',
+    'x=(w-tw)/2',
+    'y=2',
+    'box=1',
+    'boxborderw=2',
+    'fontcolor=red',
+    'boxcolor=black@0.7'
+];
 
 // Possible FFmpeg commands and options in order to be tried
 const FFMPEG_COMMANDS = [
@@ -231,11 +238,19 @@ module.exports = class SkyBellCameraStream {
                               + this.name + "': " + err);
                 return this.startLiveCall(session, callback);
             }
-            
+
+            // Generate a caption to indicate that the video is not live
+            const prefix = {
+                'device:sensor:button': 'Button pressed ',
+                'device:sensor:motion': 'Motion detected '
+            };
+            let dateRecorded = new Date(activity.createdAt);
+            let minutes = Math.ceil((Date.now() - dateRecorded) / (60 * 1000));
+            let caption = (prefix[activity.event] || '') +
+                          (1 < minutes ? minutes + ' minutes ago' : 'just now');
+                
             // Spawn FFmpeg to download and transcode the recorded video
-            let date = new Date(activity.createdAt);
-            let overlay = 'Recorded ' + date.toLocaleString();
-            this.startPlayback(url, overlay, session.video, session.audio,
+            this.startPlayback(url, caption, session.video, session.audio,
                                callback);
         });
     }
@@ -270,13 +285,6 @@ module.exports = class SkyBellCameraStream {
     startPlayback(videoIn, overlay, videoOut, microphoneOut, callback) {
         this.log("startPlayback '" + this.name + "'");
 
-        // Add the overlay text to the video filter
-        let text = overlay.replace(/[\\':]/g, '\\$&')
-                          .replace(/[\\'\[\],;]/g, '\\$&');
-        let extraFilter = ',drawtext=' + OVERLAY_ARGS + ':text=' + text;
-        let argsOut = this.ffmpegOutputArgs(videoOut, microphoneOut);
-        argsOut[1] += extraFilter;
-
         // FFmpeg parameters
         let args = [
             '-threads',            0,
@@ -287,8 +295,14 @@ module.exports = class SkyBellCameraStream {
             '-i',                  videoIn,
 
             // Output streams
-            ...argsOut
+            ...this.ffmpegOutputArgs(videoOut, microphoneOut)
         ];
+
+        // Add the overlay text to the video filter
+        let text = overlay.replace(/[\\':]/g, '\\$&')
+                          .replace(/[\\'\[\],;]/g, '\\$&');
+        let vfExtra = ',drawtext=' + OVERLAY_ARGS.join(':') + ':text=' + text;
+        args[args.indexOf('-vf') + 1] += vfExtra;
 
         // Punch through the firewall and then spawn the FFmpeg process
         this.spawnFfmpeg('Playback', args, [], callback);
@@ -334,10 +348,6 @@ module.exports = class SkyBellCameraStream {
             // Input streams are (mostly) described by the SDP file
             '-acodec',             'pcm_s16le', // (SDP specifies pcm_s16be)
             '-i',                  '-', // (SDP file provided via stdin)
-
-            // Video filter
-            '-vf',                 'scale=' + videoOut.width + ':'
-                                   + videoOut.height,
 
             // Output streams
             ...this.ffmpegOutputArgs(videoOut, microphoneOut)
