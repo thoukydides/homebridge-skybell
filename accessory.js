@@ -4,7 +4,7 @@
 'use strict';
 
 let SkyBellCameraStream = require('./camera');
-let lwip = require('lwip');
+let lwip = require('pajk-lwip');
 
 let PlatformAccessory, StreamController;
 let Accessory, Service, Characteristic, UUIDGen;
