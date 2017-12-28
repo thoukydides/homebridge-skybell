@@ -59,7 +59,7 @@ However, Apple's Home app does generate rich notifications for both doorbell but
 
 ### Snapshot Image
 
-This plugin uses the *avatar* image that the SkyBell HD periodically pushes to the SkyBell cloud. This is typically only updated once per hour. The update time shown within the HomeKit app will not indicate when the image was actually last updated.
+This plugin normally uses the *avatar* image that the SkyBell HD pushes to the SkyBell cloud once per hour. However, if a video was recorded more recently then its thumbnail will be used instead. The update time shown within the HomeKit app indicates when the image was requested, not when it was actually captured.
 
 ### Video and Audio Streams
 
