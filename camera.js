@@ -22,6 +22,9 @@ const VIDEO_RESOLUTIONS = [
     [ 320,  180, Math.min(MAX_FPS, 15)]  // Apple watch 16:9
 ];
 
+// Recorded videos are always 720p
+const RECORDING_RESOLUTION = [1280, 720];
+
 // FFmpeg drawtext filter configuration for recorded video overlay
 const OVERLAY_ARGS = [
     'fontsize=18',
@@ -57,7 +60,7 @@ module.exports = class SkyBellCameraStream {
         UUIDGen = homebridge.hap.uuid;
 
         // Default configuration
-        this.maxHeight = VIDEO_RESOLUTIONS[0][1];
+        this.streamResolution = VIDEO_RESOLUTIONS[0];
         this.sessions = {};
         this.childProcesses = {};
     }
@@ -65,8 +68,10 @@ module.exports = class SkyBellCameraStream {
     // Obtain the video and audio stream configuration
     getCodecParameters() {
         // Filter the video resolutions to those below the source
+        let maxHeight = Math.max(this.streamResolution[1],
+                                 RECORDING_RESOLUTION[1]);
         let videoResolutions = VIDEO_RESOLUTIONS.filter(res => {
-            return res[1] <= this.maxHeight
+            return res[1] <= maxHeight;
         });
 
         // Return the supported codec configurations
@@ -95,9 +100,11 @@ module.exports = class SkyBellCameraStream {
 
     // Set the maximum supported resolution
     setResolution(height) {
-        if (this.maxHeight != height) {
-            this.log("setResolution '" + this.name + "': " + height + 'p');
-            this.maxHeight = height;
+        if (this.streamResolution[1] != height) {
+            let width = { 1080: 1920, 720: 1280, 480: 854 }[height];
+            this.log("setResolution '" + this.name + "': "
+                     + height + 'x' + width);
+            this.streamResolution = [width, height];
         }
     }
 
@@ -285,6 +292,12 @@ module.exports = class SkyBellCameraStream {
     startPlayback(videoIn, overlay, videoOut, microphoneOut, callback) {
         this.log("startPlayback '" + this.name + "'");
 
+        // Prepare a video filter to add the overlay text
+        let text = overlay.replace(/[\\':]/g, '\\$&')
+                          .replace(/[\\'\[\],;]/g, '\\$&');
+        let videoFilter = 'drawtext=' + OVERLAY_ARGS.join(':')
+                                      + ':text=' + text;
+
         // FFmpeg parameters
         let args = [
             '-threads',            0,
@@ -295,14 +308,9 @@ module.exports = class SkyBellCameraStream {
             '-i',                  videoIn,
 
             // Output streams
-            ...this.ffmpegOutputArgs(videoOut, microphoneOut)
+            ...this.ffmpegOutputArgs(videoOut, microphoneOut,
+                                     RECORDING_RESOLUTION, [videoFilter])
         ];
-
-        // Add the overlay text to the video filter
-        let text = overlay.replace(/[\\':]/g, '\\$&')
-                          .replace(/[\\'\[\],;]/g, '\\$&');
-        let vfExtra = ',drawtext=' + OVERLAY_ARGS.join(':') + ':text=' + text;
-        args[args.indexOf('-vf') + 1] += vfExtra;
 
         // Spawn the FFmpeg process
         this.spawnFfmpeg('Playback', args, [], callback);
@@ -347,10 +355,11 @@ module.exports = class SkyBellCameraStream {
 
             // Input streams are (mostly) described by the SDP file
             '-acodec',             'pcm_s16le', // (SDP specifies pcm_s16be)
-            '-i',                  '-', // (SDP file provided via stdin)
-
+            '-i',                  '-',         // (SDP file provided via stdin)
+            
             // Output streams
-            ...this.ffmpegOutputArgs(videoOut, microphoneOut)
+            ...this.ffmpegOutputArgs(videoOut, microphoneOut,
+                                     this.streamResolution)
         ];
 
         // Punch through the firewall and then spawn the FFmpeg process
@@ -362,35 +371,53 @@ module.exports = class SkyBellCameraStream {
     }
 
     // Common FFmpeg output parameters
-    ffmpegOutputArgs(videoOut, microphoneOut) {
-        // Pick a lower video resolution if requested is higher than the source
-        if (this.maxHeight < videoOut.height) {
-            let resolution = VIDEO_RESOLUTIONS.find(resolution => {
-                return resolution[1] <= this.maxHeight;
-            });
-            this.log("Resolution for '" + this.name + "' reduced from "
-                     + videoOut.width + 'x' + videoOut.height
-                     + ' to ' + resolution[0] + 'x' + resolution[1]);
-            videoOut.width  = resolution[0];
-            videoOut.height = resolution[1];
+    ffmpegOutputArgs(videoOut, microphoneOut, resolutionIn, videoFilters = []) {
+        // Pick the most appropriate output resolution
+        let allowedResolutions = VIDEO_RESOLUTIONS.filter(res => {
+            return (res[0] <= videoOut.width) && (res[1] <= videoOut.height);
+        });
+        let preferredResolutions = allowedResolutions.filter(res => {
+            return (resolutionIn[0] <= res[0]) && (resolutionIn[1] <= res[1]);
+        });
+        let resolution = preferredResolutions.pop() || allowedResolutions[0];
+
+        // Add a video filter to adjust the resolution if necessary
+        let logPrefix = "Resolution for '" + this.name
+            + "': source (probably) " + resolutionIn[0] + 'x' + resolutionIn[1]
+            + ', requested ' + videoOut.width + 'x' + videoOut.height + ', ';
+        if (videoFilters.length || (resolution[0] != resolutionIn[0])
+                                || (resolution[1] != resolutionIn[1])) {
+            this.log(logPrefix + 'scaling to ' + resolution[0]
+                                         + 'x' + resolution[1]);
+            videoFilters.push('scale=' + resolution[0] + ':' + resolution[1]);
+        } else {
+            this.log(logPrefix + 'no scaling applied');
         }
 
         // FFmpeg output parameters
-        let args = [
-            // Video filter to adjust the resolution
-            '-vf',                 'scale=' + videoOut.width
-                                            + ':' + videoOut.height,
+        let args = [];
+        if (videoFilters.length) {
+            // A video filter is required, so re-encode using specified options
+            args.push (
+                // Selected video filter(s)
+                '-vf',             videoFilters.join(','),
 
-            // Video encoding options (always H.264/AVC)
-            '-vcodec',             'libx264',
-            '-pix_fmt',            'yuv420p',
-            '-r',                  videoOut.fps,
-            '-tune',               'zerolatency',
-            '-profile:v',          ['baseline', 'main', 'high'][videoOut.profile],
-            '-level:v',            ['3.1', '3.2', '4.0'][videoOut.level],
-            '-b:v',                videoOut.max_bit_rate + 'K',
-            '-bufsize',            videoOut.max_bit_rate + 'K',
-
+                // Video encoding options (always H.264/AVC)
+                '-vcodec',         'libx264',
+                '-r',              videoOut.fps,
+                '-tune',           'zerolatency',
+                '-profile:v',      ['baseline', 'main', 'high'][videoOut.profile],
+                '-level:v',        ['3.1', '3.2', '4.0'][videoOut.level],
+                '-b:v',            videoOut.max_bit_rate + 'K',
+                '-bufsize',        videoOut.max_bit_rate + 'K'
+            );
+        } else {
+            // No video filter required, so just copy the video stream
+            args.push(
+                '-vcodec',         'copy'
+            );
+        }
+        args.push (
             // Output video stream
             '-an',
             '-f',                  'rtp',
@@ -401,18 +428,18 @@ module.exports = class SkyBellCameraStream {
             'srtp://' + videoOut.server + ':' + videoOut.port
                 + '?rtcpport=' + videoOut.port + '&localrtcpport='
                 + videoOut.port + '&pkt_size=' + videoOut.mtu
-        ];
+        );
         if (microphoneOut.codec == 'OPUS') {
+            // Audio encoding options for Opus codec
             args.push(
-                // Audio encoding options for Opus codec
                 '-acodec',         'libopus',
                 '-vbr',            (microphoneOut.bit_rate == 0) ? 'on' : 'off',
                 '-frame_duration', microphoneOut.packet_time,
                 '-application',    'lowdelay'
             );
         } else if (microphoneOut.codec == 'AAC-eld') {
+            // Audio encoding options for Enhanced Low Delay AAC codec
             args.push(
-                // Audio encoding options for Enhanced Low Delay AAC codec
                 '-acodec',         'libfdk_aac',
                 '-profile:a',      'aac_eld'
             );
