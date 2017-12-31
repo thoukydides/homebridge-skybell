@@ -515,7 +515,7 @@ module.exports = class SkyBellAccessory {
             clearTimeout(this.timerLastActivity);
             this.timerLastActivity = setTimeout(() => {
                 this.log("trigger '" + this.name + "': Forgetting activity");
-                this.lastActivity(null);
+                this.setLastActivity(null);
             }, DURATION_RECORDED);
         }
 
