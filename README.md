@@ -6,7 +6,7 @@ SkyBell is a trademark owned by [SkyBell Technologies, Inc](http://www.skybell.c
 
 ## Installation
 
-1. Install [FFmpeg](https://www.ffmpeg.org/) using: `sudo apt-get install ffmpeg`
+1. Install [FFmpeg](https://www.ffmpeg.org/) (with `libx264` and `libopus` codecs enabled) using: `sudo apt-get install ffmpeg`
 1. Install this plugin using: `npm install -g homebridge-skybell`
 1. Edit `config.json` and add the SkyBell platform (see example below).
 1. Run [Homebridge](https://github.com/nfarina/homebridge).
