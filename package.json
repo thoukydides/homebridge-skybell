@@ -27,7 +27,6 @@
     },
     "dependencies": {
         "ip": "^1.1.5",
-        "pajk-lwip": "^0.2.0",
         "request": "^2.83.0",
         "uuid4": "^1.0.0"
     }

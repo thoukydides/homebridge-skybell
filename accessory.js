@@ -1,10 +1,9 @@
 // Homebridge plugin for SkyBell HD video doorbells
-// Copyright © 2017 Alexander Thoukydides
+// Copyright © 2017, 2018 Alexander Thoukydides
 
 'use strict';
 
 let SkyBellCameraStream = require('./camera');
-let lwip = require('pajk-lwip');
 
 let PlatformAccessory, StreamController;
 let Accessory, Service, Characteristic, UUIDGen;
@@ -196,14 +195,15 @@ module.exports = class SkyBellAccessory {
             if (err) return callback(err);
             
             // Scale the retrieved image to the requested size
-            lwip.open(buffer, type, (err, image) => {
-                if (err) return  callback(err);
-                let batch = image.batch();
-                batch.resize(request.width, request.height, 'lanczos')
-                     .toBuffer('jpg', (err, snapshot) => {
-                         if (err) return callback(err);
-                         callback(null, snapshot);
-                     });
+            let stream = this.streamControllers[0].cameraSource;
+            let args = [
+                '-i',  '-',             // (input image provided via stdin)
+                '-vf', 'scale=' + request.width + ':' + request.height,
+                '-f',  'image2', '-'    // (output image written to stdout)
+            ];
+            stream.spawnFfmpegImage(args, buffer, (err, snapshot) => {
+                if (err) return callback(err);
+                callback(null, snapshot);
             });
         });
     }

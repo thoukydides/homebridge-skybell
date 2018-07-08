@@ -1,5 +1,5 @@
 // Homebridge plugin for SkyBell HD video doorbells
-// Copyright © 2017 Alexander Thoukydides
+// Copyright © 2017, 2018 Alexander Thoukydides
 
 'use strict';
 
@@ -313,7 +313,7 @@ module.exports = class SkyBellCameraStream {
         ];
 
         // Spawn the FFmpeg process
-        this.spawnFfmpeg('Playback', args, [], callback);
+        this.spawnFfmpegStream('Playback', args, [], callback);
     }
 
     // Start an FFmpeg process for a live stream
@@ -366,7 +366,7 @@ module.exports = class SkyBellCameraStream {
         let firewallPorts = [videoIn.port, microphoneIn.port];
         this.sendPunchPackets(videoIn.server, firewallPorts, (err) => {
             if (err) return callback(err);
-            this.spawnFfmpeg('Stream', args, sdpIn, callback);
+            this.spawnFfmpegStream('Stream', args, sdpIn, callback);
         });
     }
 
@@ -490,8 +490,8 @@ module.exports = class SkyBellCameraStream {
         });
     }
 
-    // Start an FFmpeg process
-    spawnFfmpeg(type, args, input, callback) {
+    // Start an FFmpeg process for a stream
+    spawnFfmpegStream(type, args, input, callback) {
         let prefix = "FFmpeg '" + this.name + ' (' + type + ")': ";
 
         // Identify a suitable FFmpeg command
@@ -536,6 +536,54 @@ module.exports = class SkyBellCameraStream {
 
             // Assume for now that the child process was spawned successfully
             callback();
+        });
+    }
+
+    // Start an FFmpeg process to process an image
+    spawnFfmpegImage(args, input, callback) {
+        let prefix = "FFmpeg image: ";
+
+        // Identify a suitable FFmpeg command
+        this.getFfmpegOptions((err, cmd, preArgs) => {
+            if (err) return callback(err);
+
+            // Spawn an FFmpeg child process
+            let allArgs = [...preArgs, ...args];
+            this.log(prefix + cmd + ' ' + allArgs.join(' '));
+            let child = spawn(cmd, allArgs);
+
+            // Provide input to the child process
+            child.stdin.write(input);
+            child.stdin.end();
+
+            // Capture the output from the child process
+            let buffer = Buffer(0);
+            child.stdout.on('data', output => {
+                buffer = Buffer.concat([buffer, output]);
+            });
+
+            // Log error output and exit code from the FFmpeg process
+            child.stderr.setEncoding('utf8');
+            child.stderr.on('data', output => {
+                output.split('\n').forEach(line => {
+                    if (line.length) this.log.debug(prefix + '> ' + line);
+                });
+            });
+            child.on('error', err => {
+                this.log.error(prefix + 'Child process error: ' + err);
+                child = null;
+                callback(err);
+            });
+            child.on('close', code => {
+                this.log.warn(prefix + 'Child process exit: ' + code);
+                if (!child) return;
+                child = null;
+                if (code) {
+                    callback(new Error ('FFmpeg exited with status ' + code));
+                } else {
+                    callback(null, buffer);
+                }
+            });
         });
     }
 
