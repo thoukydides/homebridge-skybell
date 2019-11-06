@@ -1,5 +1,7 @@
 # homebridge-skybell
 
+[![NPM](https://nodei.co/npm/homebridge-skybell.png)](https://nodei.co/npm/homebridge-skybell/)
+
 SkyBell HD Wi-Fi video doorbell plugin for [Homebridge](https://github.com/nfarina/homebridge).
 
 SkyBell is a trademark owned by [SkyBell Technologies, Inc](http://www.skybell.com/).
