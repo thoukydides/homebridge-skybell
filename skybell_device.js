@@ -4,6 +4,7 @@
 'use strict';
 
 let request = require('request');
+let xml2js = require('xml2js');
 
 // Default options
 const DEFAULT_OPTIONS = {
@@ -211,15 +212,43 @@ module.exports = class SkyBellDevice {
             }
 
             // URL obtained, so download the actual avatar image
-            let logPrefix = 'Avatar download: ';
-            this.options.log(logPrefix + url);
-            let startTime = Date.now();
-            request({ url: url, encoding: null }, (err, response, image) => {
-                this.options.log(logPrefix + (err || response.statusMessage)
-                                 + ' +' + (Date.now() - startTime) + 'ms ');
-                if (err) return callback(err);
+            this.requestS3(url, (err, image) => {
+                if (err) {
+                    this.options.log("Failed to retrieve SkyBell '" + this.name
+                                      + "' avatar: " + err);
+                    return callback(err);
+                }
                 let type = url.match(/\.(\w+)\?/);
                 callback(null, image, type ? type[1] : 'jpg');
+            });
+        });
+    }
+
+    // Issue a request for an Amazon Simple Storage Service (S3) object
+    requestS3(url, callback) {
+        let options = {
+            url:        url,
+            encoding:   null
+        };
+        let logPrefix = 'AWS S3 request: ';
+        this.options.log(logPrefix + url);
+        let startTime = Date.now();
+        request(options, (err, response, body) => {
+            // Check for errors
+            this.options.log(logPrefix + (err || response.statusMessage)
+                              + ' +' + (Date.now() - startTime) + 'ms ');
+            if (response && response.statusCode < 400) {
+                return callback(null, body);
+            }
+
+            // Attempt to extract a useful error message
+            let msg = err || response.statusMessage;
+            xml2js.parseString(body || '', (err, xml) => {
+                if (xml && xml.Error) {
+                    let e = xml.Error;
+                    msg = e.Message[0] || e.Code[0] || JSON.stringify(e);
+                }
+                callback(new Error('SkyBell S3 error: ' + msg));
             });
         });
     }
