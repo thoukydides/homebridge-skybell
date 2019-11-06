@@ -557,7 +557,7 @@ module.exports = class SkyBellCameraStream {
             child.stdin.end();
 
             // Capture the output from the child process
-            let buffer = Buffer(0);
+            let buffer = Buffer.alloc(0);
             child.stdout.on('data', output => {
                 buffer = Buffer.concat([buffer, output]);
             });
