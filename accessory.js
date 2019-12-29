@@ -254,13 +254,15 @@ module.exports = class SkyBellAccessory {
         let minRgb = Math.min(...rgb);
         let maxRgb = Math.max(...rgb);
         let chroma = maxRgb - minRgb;
-        let hue = 0; // (dummy value for white, i.e. R=G=B=255)
-        if (maxRgb == rgb[0]) { // 0-60° or 300-360°
+        let hue;
+        if (chroma == 0) {
+            hue = 0; // (dummy value for white, i.e. R=G=B=255)
+        } else if (maxRgb == rgb[0]) { // 0-60° or 300-360°
             hue = (rgb[1] - rgb[2]) / chroma;
             if (hue < 0) hue += 6;
         } else if (maxRgb == rgb[1]) { // 60-180°
             hue = (rgb[2] - rgb[0]) / chroma + 2;
-        } else if (maxRgb == rgb[2]) { // 180-300°
+        } else { // (maxRgb == rgb[2])    180-300°
             hue = (rgb[0] - rgb[1]) / chroma + 4;
         }
         let ledHue = Math.round(hue * 60);
@@ -433,17 +435,17 @@ module.exports = class SkyBellAccessory {
         let minRgb = maxRgb - chroma;
         let deltaRgb = chroma * ((hue / 60) % 1);
         let rgb;
-        if (hue <= 60) {
+        if (hue < 60) {
             rgb = [maxRgb, minRgb + deltaRgb, minRgb];
-        } else if (hue <= 120) {
+        } else if (hue < 120) {
             rgb = [maxRgb - deltaRgb, maxRgb, minRgb];
-        } else if (hue <= 180) {
+        } else if (hue < 180) {
             rgb = [minRgb, maxRgb, minRgb + deltaRgb];
-        } else if (hue <= 240) {
+        } else if (hue < 240) {
             rgb = [minRgb, maxRgb - deltaRgb, maxRgb];
-        } else if (hue <= 300) {
+        } else if (hue < 300) {
             rgb = [minRgb + deltaRgb, minRgb, maxRgb];
-        } else { // (h <= 360)
+        } else { // (h < 360)
             rgb = [maxRgb, minRgb, maxRgb - deltaRgb];
         }
         let settings = {
