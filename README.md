@@ -71,9 +71,13 @@ Viewing the live stream from a SkyBell HD via HomeKit results in an *On demand* 
 
 This plugin currently only supports audio in a single direction: from the doorbell's microphone to HomeKit. This is because the audio streams in each direction use the same ports, but unfortunately FFmpeg (which is used by this plugin to transcode the audio and video) does not support sharing a single port between two SRTP streams.
 
+## Changelog
+
+All notable changes to this project will be documented in [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
-> ISC License (ISC)<br>Copyright © 2017 Alexander Thoukydides
+> ISC License (ISC)<br>Copyright © 2017-2020 Alexander Thoukydides
 >
 > Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
 >

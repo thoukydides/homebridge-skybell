@@ -1,0 +1,69 @@
+{
+    "pluginAlias":  "HomeConnect",
+    "pluginType":   "platform",
+    "singular":     true,
+    "headerDisplay": "For help please refer to the [README](https://github.com/thoukydides/homebridge-skybell/blob/master/README.md) and [`config.json`](https://github.com/thoukydides/homebridge-skybell/wiki/config.json).",
+    "footerDisplay": "© 2017-2020 [Alexander Thoukydides](https://www.thouky.co.uk/)",
+    "schema": {
+        "type":     "object",
+        "properties": {
+            "username": {
+                "title":    "Username",
+                "type":     "string",
+                "format":   "email",
+                "required": true
+            },
+            "password": {
+                "title":    "Password",
+                "type":     "string",
+                "required": true
+            },
+            "port": {
+                "title":    "Webhooks Port",
+                "type":     "integer",
+                "minimum":  1024,
+                "maximum":  65535
+            },
+            "secret": {
+                "title":    "Webhooks Secret",
+                "type":     "string"
+            }
+        }
+    },
+    "form": [{
+        "type":         "fieldset",
+        "title":        "SkyBell Account",
+        "description":  "Please enter the email address and password used to log into the SkyBell HD app:",
+        "expandable":   false,
+        "items": [{
+            "type":         "flex",
+            "flex-flow":    "row",
+            "items": [{
+                "key":          "username",
+                "placeholder":  "e.g. skybell@gmail.com"
+            },{
+                "key":          "password",
+                "type":         "password",
+                "placeholder":  "e.g. Passw0rd!"
+            }]
+        }]
+    },{
+        "type":         "fieldset",
+        "title":        "Webhooks Setup <i>(optional)</i>",
+        "description":  "Webhooks can be used to speed-up detection of button press and motion events.<br>See <a href='https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks'>Webhooks</a> and <a href='https://github.com/thoukydides/homebridge-skybell/wiki/Webhooks-Sniffer'>Webhooks Sniffer</a> for more details.",
+        "expandable":   true,
+        "expanded":     false,
+        "items": [{
+            "key":          "port",
+            "description":  "Select the port number on which the webhooks server should listen for requests.",
+            "type":         "number",
+            "placeholder":  "e.g. 47569"
+        },{
+            "key":          "secret",
+            "condition":    "model.port",
+            "description":  "An optional phrase used to authenticate webhook requests. If this is specified then the same phrase must be included in all webhook requests.",
+            "placeholder":  "e.g. My webhooks secret"
+        }]
+    }],
+    "display":      null
+}
