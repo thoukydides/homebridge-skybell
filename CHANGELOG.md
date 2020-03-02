@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v1.8.1] - 2020-03-02
+### Fixed
+* Corrected the platform name in the configuration schema.
+
 ## [v1.8.0] - 2020-01-09
 ### Added
 * Added a schema (`config.schema.json`) to allow editing of this plugin's configuration using [homebridge-config-ui-x](https://github.com/oznu/homebridge-config-ui-x). ([config.json])
@@ -93,8 +97,10 @@ Copyright © 2017-2020 Alexander Thoukydides
 [#12]:                  https://github.com/thoukydides/homebridge-skybell/issues/12                 "Issue #12"
 [#13]:                  https://github.com/thoukydides/homebridge-skybell/issues/13                 "Issue #13"
 [#14]:                  https://github.com/thoukydides/homebridge-skybell/issues/14                 "Issue #14"
+[#15]:                  https://github.com/thoukydides/homebridge-skybell/issues/15                 "Issue #15"
                         
-[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v1.8.0...HEAD
+[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v1.8.1...HEAD
+[v1.8.1]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.8.0...v1.8.1
 [v1.8.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.7.0...v1.8.0
 [v1.7.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.6.0...v1.7.0
 [v1.6.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.5.1...v1.6.0

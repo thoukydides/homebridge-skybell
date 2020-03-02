@@ -1,5 +1,5 @@
 {
-    "pluginAlias":  "HomeConnect",
+    "pluginAlias":  "SkyBell",
     "pluginType":   "platform",
     "singular":     true,
     "headerDisplay": "For help please refer to the [README](https://github.com/thoukydides/homebridge-skybell/blob/master/README.md) and [`config.json`](https://github.com/thoukydides/homebridge-skybell/wiki/config.json).",
