@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.0.0] - 2020-05-03
+### Fixed
+* Now supports (and requires) homebridge version 1.0.0 or later. ([#16#])
+
 ## [v1.8.1] - 2020-03-02
 ### Fixed
 * Corrected the platform name in the configuration schema.
@@ -98,8 +102,10 @@ Copyright © 2017-2020 Alexander Thoukydides
 [#13]:                  https://github.com/thoukydides/homebridge-skybell/issues/13                 "Issue #13"
 [#14]:                  https://github.com/thoukydides/homebridge-skybell/issues/14                 "Issue #14"
 [#15]:                  https://github.com/thoukydides/homebridge-skybell/issues/15                 "Issue #15"
+[#16]:                  https://github.com/thoukydides/homebridge-skybell/issues/16                 "Issue #16"
                         
-[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v1.8.1...HEAD
+[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.0.0...HEAD
+[v2.0.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.8.1...v2.0.0
 [v1.8.1]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.8.0...v1.8.1
 [v1.8.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.7.0...v1.8.0
 [v1.7.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.6.0...v1.7.0
