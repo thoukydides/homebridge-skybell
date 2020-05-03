@@ -307,7 +307,7 @@ module.exports = class SkyBellCameraStreamingDelegate {
             this.log("Killing FFmpeg '" + this.name + ' (' + session.id + ")'");
             this.childProcesses[session.id].kill('SIGKILL');
             delete this.childProcesses[type];
-        });
+        }
     }
 
     // Start an FFmpeg process for a previously recorded video
