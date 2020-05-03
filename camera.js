@@ -205,7 +205,7 @@ module.exports = class SkyBellCameraStreamingDelegate {
         };
 
         // Send the response to the client
-        callback(response);
+        callback(null, response);
     }
 
     // Start, stop, or reconfigure a steam
@@ -306,7 +306,7 @@ module.exports = class SkyBellCameraStreamingDelegate {
         if (this.childProcesses[session.id]) {
             this.log("Killing FFmpeg '" + this.name + ' (' + session.id + ")'");
             this.childProcesses[session.id].kill('SIGKILL');
-            delete this.childProcesses[type];
+            delete this.childProcesses[session.id];
         }
     }
 
