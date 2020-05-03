@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v2.0.0] - 2020-05-03
 ### Fixed
-* Now supports (and requires) homebridge version 1.0.0 or later. ([#16#])
+* Now supports (and requires) homebridge version 1.0.0 or later. ([#16])
 
 ## [v1.8.1] - 2020-03-02
 ### Fixed
