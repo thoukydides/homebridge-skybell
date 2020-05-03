@@ -1,5 +1,5 @@
 // Homebridge plugin for SkyBell HD video doorbells
-// Copyright © 2017 Alexander Thoukydides
+// Copyright © 2017, 2020 Alexander Thoukydides
 
 'use strict';
 
@@ -71,7 +71,7 @@ class SkyBellPlatform {
         this.log("addAccessory '" + skybellDevice.name + "'");
         let skybell = new SkyBellAccessory(this.log, this.homebridge,
                                            skybellDevice, this.webhooks);
-        this.homebridge.publishCameraAccessories(PLUGIN_NAME,
-                                                 [skybell.accessory]);
+        this.homebridge.publishExternalAccessories(PLUGIN_NAME,
+                                                   [skybell.accessory]);
     }
 }

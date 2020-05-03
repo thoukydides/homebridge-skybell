@@ -1,11 +1,11 @@
 // Homebridge plugin for SkyBell HD video doorbells
-// Copyright © 2017, 2018 Alexander Thoukydides
+// Copyright © 2017, 2018, 2020 Alexander Thoukydides
 
 'use strict';
 
-let SkyBellCameraStream = require('./camera');
+let SkyBellCameraStreamingDelegate = require('./camera');
 
-let PlatformAccessory, StreamController;
+let PlatformAccessory, CameraController;
 let Accessory, Service, Characteristic, UUIDGen;
 let VIDEO_DOORBELL, SINGLE_PRESS;
 
@@ -38,7 +38,7 @@ module.exports = class SkyBellAccessory {
     
         // Shortcuts to useful objects
         PlatformAccessory = homebridge.platformAccessory;
-        StreamController = homebridge.hap.StreamController;
+        CameraController = homebridge.hap.CameraController;
         Accessory = homebridge.hap.Accessory;
         VIDEO_DOORBELL = Accessory.Categories.VIDEO_DOORBELL;
         Service = homebridge.hap.Service;
@@ -143,17 +143,16 @@ module.exports = class SkyBellAccessory {
             .updateValue(true);
         this.services = [this.controlService];
 
-        // Add stream controller services
-        this.streamControllers = [];
-        for (let id = 1; id <= MAX_STREAMS; ++id) {
-            let stream = new SkyBellCameraStream(log, homebridge,
-                                                 skybellDevice, id);
-            let options = stream.getCodecParameters();
-            let streamController = new StreamController(id, options, stream);
-            this.services.push(streamController.service);
-            this.streamControllers.push(streamController);
-        }
-        this.accessory.configureCameraSource(this);
+        // Add the camera controller services
+        this.streamingDelegate =
+            new SkyBellCameraStreamingDelegate(log, homebridge, skybellDevice);
+        let options = {
+            cameraStreamCount:  MAX_STREAMS,
+            delegate:           this.streamingDelegate,
+            streamingOptions:   this.streamingDelegate.getCodecParameters()
+        };
+        this.cameraController = new CameraController(options, true);
+        this.accessory.configureController(this.cameraController);
 
         // Set the doorbell as the primary service
         if (this.accessory._associatedHAPAccessory) {
@@ -185,36 +184,6 @@ module.exports = class SkyBellAccessory {
             webhooks.addHook('trigger/motion', { name: skybellDevice.name },
                              () => { this.trigger('webhook', 'motion') });
         }
-    }
-
-    // Use the avatar image to retrieve a still snapshot
-    handleSnapshotRequest(request, callback) {
-        this.log("handleSnapshotRequest '" + this.name + "':"
-                 + ' width=' + request.width + ' height=' + request.height);
-        this.skybellDevice.getAvatar((err, buffer, type) => {
-            if (err) return callback(err);
-            
-            // Scale the retrieved image to the requested size
-            let stream = this.streamControllers[0].cameraSource;
-            let args = [
-                '-i',  '-',             // (input image provided via stdin)
-                '-vf', 'scale=' + request.width + ':' + request.height,
-                '-f',  'image2', '-'    // (output image written to stdout)
-            ];
-            stream.spawnFfmpegImage(args, buffer, (err, snapshot) => {
-                if (err) return callback(err);
-                callback(null, snapshot);
-            });
-        });
-    }
-
-    // A client has disconnected so close all of its streams
-    handleCloseConnection(connectionId) {
-        this.log("handleCloseConnection '" + this.name + "':"
-                 + ' connectionId=' + connectionId);
-        this.streamControllers.forEach(controller => {
-            controller.handleCloseConnection(connectionId);
-        });
     }
 
     // The device's information has been updated
@@ -282,13 +251,17 @@ module.exports = class SkyBellAccessory {
 
         // Set the maximum camera resolution
         let height = [1080, 720, 720, 480][settings.video_profile];
-        this.streamControllers.forEach(controller => {
-            controller.cameraSource.setResolution(height);
+        this.streamingDelegate.setResolution(height);
 
-            // Publish a new list of supported resolutions (this is a hack!)
-            let options = controller.cameraSource.getCodecParameters();
-            controller.supportedVideoStreamConfiguration =
-                controller._supportedVideoStreamConfiguration(options.video);
+        // Publish a new list of supported resolutions (this is a hack!)
+        let options = this.streamingDelegate.getCodecParameters();
+
+        this.cameraController.streamManagements.forEach(management => {
+            management.supportedVideoStreamConfiguration =
+                management._supportedVideoStreamConfiguration(options.video);
+            management.service.setCharacteristic(
+                Characteristic.SupportedVideoStreamConfiguration,
+                management.supportedVideoStreamConfiguration);
         });
     }
 
@@ -503,9 +476,7 @@ module.exports = class SkyBellAccessory {
         this.lastActivity = activity;
 
         // Set the activity to replay instead of streaming live video
-        this.streamControllers.forEach(controller => {
-            controller.cameraSource.setActivity(activity);
-        });
+        this.streamingDelegate.setActivity(activity);
     }
 
     // A button press or motion event trigger has been received
