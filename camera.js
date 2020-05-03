@@ -1,5 +1,5 @@
 // Homebridge plugin for SkyBell HD video doorbells
-// Copyright © 2017, 2018 Alexander Thoukydides
+// Copyright © 2017, 2018, 2020 Alexander Thoukydides
 
 'use strict';
 
@@ -46,14 +46,13 @@ const FFMPEG_COMMANDS = [
 let ffmpegCommand;
 
 // A single stream for the camera component of a Homebridge SkyBell accessory
-module.exports = class SkyBellCameraStream {
+module.exports = class SkyBellCameraStreamingDelegate {
 
     // Initialise a camera stream
-    constructor(log, homebridge, skybellDevice, id) {
+    constructor(log, homebridge, skybellDevice) {
         this.log = log;
         this.skybellDevice = skybellDevice;
-        this.name = skybellDevice.name + ' #' + id;
-        this.id = id;
+        this.name = skybellDevice.name;
         log("new SkyBellCameraStream '" + this.name + "'");
         
         // Shortcuts to useful objects
@@ -116,6 +115,26 @@ module.exports = class SkyBellCameraStream {
             this.activity = activity;
         }
     }
+
+    // Use the avatar image to retrieve a still snapshot
+    handleSnapshotRequest(request, callback) {
+        this.log("handleSnapshotRequest '" + this.name + "':"
+                 + ' width=' + request.width + ' height=' + request.height);
+        this.skybellDevice.getAvatar((err, buffer, type) => {
+            if (err) return callback(err);
+
+            // Scale the retrieved image to the requested size
+            let args = [
+                '-i',  '-',             // (input image provided via stdin)
+                '-vf', 'scale=' + request.width + ':' + request.height,
+                '-f',  'image2', '-'    // (output image written to stdout)
+            ];
+            this.spawnFfmpegImage(args, buffer, (err, snapshot) => {
+                if (err) return callback(err);
+                callback(null, snapshot);
+            });
+        });
+    }
     
     // Provide the endpoint information for a stream
     prepareStream(request, callback) {
@@ -132,6 +151,9 @@ module.exports = class SkyBellCameraStream {
 
         // Remember details of the outgoing streams
         this.sessions[sessionId] = {
+            // A unique identifier for the API
+            id:      sessionId,
+
             // Video stream to the client
             video: {
                 // SRTP configuration
@@ -187,7 +209,7 @@ module.exports = class SkyBellCameraStream {
     }
 
     // Start, stop, or reconfigure a steam
-    handleStreamRequest(request) {
+    handleStreamRequest(request, callback) {
         let sessionId = UUIDGen.unparse(request.sessionID);
         this.log("handleStreamRequest '" + this.name + "': " + request.type
                  + ' sessionId=' + sessionId);
@@ -200,25 +222,22 @@ module.exports = class SkyBellCameraStream {
                 Object.assign(session.video, request.video);
                 Object.assign(session.audio, request.audio);
                 
-                // Terminate any previous call
-                if (this.activeCall) endCall();
-                this.activeCall = sessionId;
-                
                 // Initiate the new call
                 this.startCall(session, (err) => {
                     if (err) {
                         this.log.error("Failed to initiate call to '"
                                        + this.name + "': " + err);
+                        return callback(err);
                     }
                 });
             }
             
         } else if (request.type == 'stop') {
             
-            // End the current call if it is for the specified session
-            if (this.activeCall == sessionId) {
-                this.endCall();
-                this.activeCall = null;
+            if (session) {
+                // End the call
+                this.endCall(session);
+                delete this.sessions[sessionId];
             }
             
         } else {
@@ -227,11 +246,14 @@ module.exports = class SkyBellCameraStream {
             this.log('Stream request type=' + request.type + ' not supported');
             
         }
+
+        // Send the response to the client
+        callback();
     }
 
     // Start a call
     startCall(session, callback) {
-        this.log("startCall '" + this.name + "'");
+        this.log("startCall '" + this.name + ' (' + session.id + ")'");
 
         // Start a live call if there was no recent activity
         let activity = this.activity;
@@ -257,40 +279,40 @@ module.exports = class SkyBellCameraStream {
                           (1 < minutes ? minutes + ' minutes ago' : 'just now');
                 
             // Spawn FFmpeg to download and transcode the recorded video
-            this.startPlayback(url, caption, session.video, session.audio,
-                               callback);
+            this.startPlayback(session.id, url, caption, session.video,
+                               session.audio, callback);
         });
     }
 
     // Start a live call
     startLiveCall(session, callback) {
-        this.log("startLiveCall '" + this.name + "'");
+        this.log("startLiveCall '" + this.name + ' (' + session.id + ")'");
 
         // Start a call to the SkyBell device to obtain the SRTP configuration
-        this.skybellDevice.startCall(this.id, (err, call) => {
+        this.skybellDevice.startCall(session.id, (err, call) => {
             if (err) return callback(err);
             // Spawn FFmpeg to transcode the video and audio streams
-            this.startStream(call.incomingVideo, call.incomingAudio,
+            this.startStream(session.id, call.incomingVideo, call.incomingAudio,
                              session.video, session.audio, callback);
         });
     }
 
     // End a call
-    endCall() {
-        this.log("stopCall '" + this.name + "'");
-        this.skybellDevice.stopCall(this.id, () => {});
+    endCall(session) {
+        this.log("stopCall '" + this.name + ' (' + session.id + ")'");
+        this.skybellDevice.stopCall(session.id, () => {});
 
         // Kill any FFmpeg processes that have survived this long
-        Object.keys(this.childProcesses).forEach(type => {
-            this.log("Killing FFmpeg '" + this.name + ' (' + type + ")'");
-            this.childProcesses[type].kill('SIGKILL');
+        if (this.childProcesses[session.id]) {
+            this.log("Killing FFmpeg '" + this.name + ' (' + session.id + ")'");
+            this.childProcesses[session.id].kill('SIGKILL');
             delete this.childProcesses[type];
         });
     }
 
     // Start an FFmpeg process for a previously recorded video
-    startPlayback(videoIn, overlay, videoOut, microphoneOut, callback) {
-        this.log("startPlayback '" + this.name + "'");
+    startPlayback(id, videoIn, overlay, videoOut, microphoneOut, callback) {
+        this.log("startPlayback '" + this.name + ' (' + id + ")'");
 
         // Prepare a video filter to add the overlay text
         let text = overlay.replace(/[\\':]/g, '\\$&')
@@ -313,12 +335,12 @@ module.exports = class SkyBellCameraStream {
         ];
 
         // Spawn the FFmpeg process
-        this.spawnFfmpegStream('Playback', args, [], callback);
+        this.spawnFfmpegStream(id, args, [], callback);
     }
 
     // Start an FFmpeg process for a live stream
-    startStream(videoIn, microphoneIn, videoOut, microphoneOut, callback) {
-        this.log("startStream '" + this.name + "'");
+    startStream(id, videoIn, microphoneIn, videoOut, microphoneOut, callback) {
+        this.log("startStream '" + this.name + ' (' + id + ")'");
 
         // Session Description Protocol (SDP) file for the input streams
         let sdpIn = [
@@ -366,7 +388,7 @@ module.exports = class SkyBellCameraStream {
         let firewallPorts = [videoIn.port, microphoneIn.port];
         this.sendPunchPackets(videoIn.server, firewallPorts, (err) => {
             if (err) return callback(err);
-            this.spawnFfmpegStream('Stream', args, sdpIn, callback);
+            this.spawnFfmpegStream(id, args, sdpIn, callback);
         });
     }
 
@@ -491,8 +513,8 @@ module.exports = class SkyBellCameraStream {
     }
 
     // Start an FFmpeg process for a stream
-    spawnFfmpegStream(type, args, input, callback) {
-        let prefix = "FFmpeg '" + this.name + ' (' + type + ")': ";
+    spawnFfmpegStream(id, args, input, callback) {
+        let prefix = "FFmpeg '" + this.name + ' (' + id + ")': ";
 
         // Identify a suitable FFmpeg command
         this.getFfmpegOptions((err, cmd, preArgs) => {
@@ -502,7 +524,7 @@ module.exports = class SkyBellCameraStream {
             let allArgs = [...preArgs, ...args];
             this.log(prefix + cmd + ' ' + allArgs.join(' '));
             let child = spawn(cmd, allArgs);
-            this.childProcesses[type] = child;
+            this.childProcesses[id] = child;
 
             // Provide input to the child process
             input.forEach(line => this.log.debug(prefix + '< ' + line));
@@ -523,12 +545,12 @@ module.exports = class SkyBellCameraStream {
             logOutput(child.stderr);
             child.on('error', err => {
                 this.log.error(prefix + 'Child process error: ' + err);
-                delete this.childProcesses[type];
+                delete this.childProcesses[id];
             });
             child.on('close', code => {
-                if (this.childProcesses[type]) {
+                if (this.childProcesses[id]) {
                     this.log.warn(prefix + 'Unexpected exit: ' + code);
-                    delete this.childProcesses[type];
+                    delete this.childProcesses[id];
                 } else {
                     this.log(prefix + 'Normal exit: ' + code);
                 }
