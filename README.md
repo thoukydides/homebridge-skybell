@@ -1,5 +1,7 @@
-<span align=center>
+<p align="center">
   <a href="https://github.com/homebridge/homebridge/wiki/Verified-Plugins"><img src="https://raw.githubusercontent.com/wiki/thoukydides/homebridge-skybell/homebridge-skybell.png" height="200"></a>
+</p>
+<span align=center>
 
 # homebridge-skybell
 
