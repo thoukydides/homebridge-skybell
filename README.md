@@ -1,3 +1,6 @@
+<span align=center>
+  <a href="https://github.com/homebridge/homebridge/wiki/Verified-Plugins"><img src="https://raw.githubusercontent.com/wiki/thoukydides/homebridge-skybell/homebridge-skybell.png" height="200"></a>
+
 # homebridge-skybell
 
 [![npm](https://badgen.net/npm/v/homebridge-skybell)](https://www.npmjs.com/package/homebridge-skybell)
@@ -6,6 +9,8 @@
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 
 SkyBell HD Wi-Fi video doorbell plugin for [Homebridge](https://github.com/nfarina/homebridge).
+
+</span>
 
 SkyBell is a trademark owned by [SkyBell Technologies, Inc](http://www.skybell.com/).
 
