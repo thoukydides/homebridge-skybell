@@ -1,6 +1,9 @@
 # homebridge-skybell
 
-[![NPM](https://nodei.co/npm/homebridge-skybell.png)](https://nodei.co/npm/homebridge-skybell/)
+[![npm](https://badgen.net/npm/v/homebridge-skybell)](https://www.npmjs.com/package/homebridge-skybell)
+[![npm](https://badgen.net/npm/dt/homebridge-skybell)](https://www.npmjs.com/package/homebridge-skybell)
+[![npm](https://badgen.net/npm/dw/homebridge-skybell)](https://www.npmjs.com/package/homebridge-skybell)
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 
 SkyBell HD Wi-Fi video doorbell plugin for [Homebridge](https://github.com/nfarina/homebridge).
 
