@@ -11,6 +11,9 @@ let Webhooks = require('./webhooks');
 const PLUGIN_NAME = 'homebridge-skybell';
 const PLATFORM_NAME = 'SkyBell';
 
+// Required Homebridge API version
+const API_VERSION = 2.5;
+
 // Register as a non-dynamic platform
 module.exports = homebridge => {
     homebridge.registerPlatform(PLUGIN_NAME, PLATFORM_NAME,
@@ -27,13 +30,19 @@ class SkyBellPlatform {
         this.config = config || {};
         this.homebridge = homebridge;
 
-        // Enumerate SkyBell devices after cached accessories restored
-        if (homebridge) {
-            this.homebridge.on('didFinishLaunching',
-                               () => this.finishedLaunching());
-        } else {
-            this.finishedLaunching();
+        // Check that the Homebridge API is sufficiently recent
+        if (!homebridge) return log.error('Homebridge version is too old');
+        log('Homebridge API ' + homebridge.version + ' (package version '
+            + homebridge.serverVersion + ')');
+        if (homebridge.version < API_VERSION) {
+            return log.error('The ' + PLUGIN_NAME + ' plugin requires'
+                             + ' Homebridge API ' + API_VERSION + ' or later'
+                             +' (provided by homebridge 1.x)');
         }
+
+        // Enumerate SkyBell devices after cached accessories restored
+        this.homebridge.on('didFinishLaunching',
+                           () => this.finishedLaunching());
     }
 
     // Required to indicate support for Plugin 2.0 API, but won't be called
