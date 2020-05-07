@@ -85,6 +85,8 @@ This plugin currently only supports audio in a single direction: from the doorbe
 
 All notable changes to this project will be documented in [CHANGELOG.md](CHANGELOG.md).
 
+**The current version of this plugin requires Homebridge 1.0.0 or later. Use version 1.8.1 with older releases of Homebridge.**
+
 ## License
 
 > ISC License (ISC)<br>Copyright © 2017-2020 Alexander Thoukydides
