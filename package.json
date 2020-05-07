@@ -1,6 +1,6 @@
 {
     "name": "homebridge-skybell",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "SkyBell HD Wi-Fi video doorbell plugin for Homebridge",
     "license": "ISC",
     "keywords": [
