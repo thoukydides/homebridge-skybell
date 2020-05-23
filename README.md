@@ -9,6 +9,8 @@
 [![npm](https://badgen.net/npm/dt/homebridge-skybell)](https://www.npmjs.com/package/homebridge-skybell)
 [![npm](https://badgen.net/npm/dw/homebridge-skybell)](https://www.npmjs.com/package/homebridge-skybell)
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+[![certified-hoobs-plugin](https://badgen.net/badge/HOOBS/Certified/yellow)](https://plugins.hoobs.org) [![hoobs-support](https://badgen.net/badge/HOOBS/Support/yellow)](https://support.hoobs.org)
+
 
 SkyBell HD Wi-Fi video doorbell plugin for [Homebridge](https://github.com/nfarina/homebridge).
 
