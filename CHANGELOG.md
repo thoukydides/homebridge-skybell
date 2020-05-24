@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.0.2] - 2020-05-24
+### Added
+* Added **[HOOBS Certified](https://plugins.hoobs.org/plugin/homebridge-skybell)** badge to the `README.md`. ([#15], [#17])
+
 ## [v2.0.1] - 2020-05-07
 ### Added
 * Added **[Verified By Homebridge](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)** badge to the `README.md`.
@@ -108,8 +112,10 @@ Copyright © 2017-2020 Alexander Thoukydides
 [#14]:                  https://github.com/thoukydides/homebridge-skybell/issues/14                 "Issue #14"
 [#15]:                  https://github.com/thoukydides/homebridge-skybell/issues/15                 "Issue #15"
 [#16]:                  https://github.com/thoukydides/homebridge-skybell/issues/16                 "Issue #16"
+[#17]:                  https://github.com/thoukydides/homebridge-skybell/issues/17                 "Issue #17"
                         
-[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.0.1...HEAD
+[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.0.2...HEAD
+[v2.0.2]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.0.1...v2.0.2
 [v2.0.1]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.0.0...v2.0.1
 [v2.0.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.8.1...v2.0.0
 [v1.8.1]:               https://github.com/thoukydides/homebridge-skybell/compare/v1.8.0...v1.8.1
