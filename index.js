@@ -59,11 +59,16 @@ class SkyBellPlatform {
         let pass = this.config['password'];
         if (!user) this.log.error('Platform ' + PLATFORM_NAME + " configuration is missing 'username' property");
         if (!pass) this.log.error('Platform ' + PLATFORM_NAME + " configuration is missing 'password' property");
+
+        // Construct a user agent suffix for the homebridge server version
+        let userAgentSuffix = 'homebridge/' + this.homebridge.serverVersion
+                              + ' (api:' + this.homebridge.version + ')'
         
         // Connect to the SkyBell cloud
         this.skybellAccount = new SkyBellAccount(user, pass, {
             log:         this.log.debug.bind(this.log),
-            callbackAdd: this.addAccessory.bind(this)
+            callbackAdd: this.addAccessory.bind(this),
+            userAgent:   userAgentSuffix
         });
 
         // Start the webhooks server if configured

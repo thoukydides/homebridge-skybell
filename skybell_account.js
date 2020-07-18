@@ -28,7 +28,8 @@ module.exports = class SkyBellAccount {
         this.options = Object.assign({}, DEFAULT_OPTIONS, options);
         
         // Create a SkyBell API object
-        this.api = new SkyBellAPI(user, pass, this.options.log);
+        this.api = new SkyBellAPI(user, pass, this.options.log,
+                                  this.options.userAgent);
 
         // Start polling the list of devices
         this.skybellDevices = {};

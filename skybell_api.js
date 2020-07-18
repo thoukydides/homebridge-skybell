@@ -6,6 +6,11 @@
 let request = require('request');
 let uuid = require('uuid4');
 
+// User-Agent header
+const NAME       = require('./package.json').name;
+const VERSION    = require('./package.json').version;
+const USER_AGENT = NAME + '/' + VERSION;
+
 // Base URL for the SkyBell cloud services
 const SKYBELL_URL = 'https://cloud.myskybell.com/api/v3/';
 
@@ -16,7 +21,7 @@ let instanceCount = 0;
 module.exports = class SkyBellAPI {
 
     // Create a new API object
-    constructor(user, pass, log) {
+    constructor(user, pass, log, ua) {
         // Store the login credentials
         this.credentials = {
             username: user || '',
@@ -27,6 +32,10 @@ module.exports = class SkyBellAPI {
         this.log = log || console.log;
         this.instance = ++instanceCount;
         this.requestCount = 0;
+
+        // Construct the user agent string
+        this.userAgent = USER_AGENT;
+        if (ua) this.userAgent += ' ' + ua;
 
         // No access token initially
         this.token = null;
@@ -215,6 +224,7 @@ module.exports = class SkyBellAPI {
             url:     SKYBELL_URL + path,
             json:    true,
             headers: {
+                'user-agent':          this.userAgent,
                 Authorization:         'Bearer ' + this.token,
                 'x-skybell-app-id':    this.appUuid,
                 'x-skybell-client-id': this.clientUuid
