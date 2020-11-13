@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.1.1] - 2020-11-13
+### Fixed
+* Corrected callback handling when starting to stream the doorbell video. ([#21])
+
 ## [v2.1.0] - 2020-07-18
 ### Added
 * Added a `User-Agent` header to all SkyBell API requests. ([#19])
@@ -119,8 +123,11 @@ Copyright © 2017-2020 Alexander Thoukydides
 [#17]:                  https://github.com/thoukydides/homebridge-skybell/issues/17                 "Issue #17"
 [#18]:                  https://github.com/thoukydides/homebridge-skybell/issues/18                 "Issue #18"
 [#19]:                  https://github.com/thoukydides/homebridge-skybell/issues/19                 "Issue #19"
+[#20]:                  https://github.com/thoukydides/homebridge-skybell/issues/20                 "Issue #20"
+[#21]:                  https://github.com/thoukydides/homebridge-skybell/issues/21                 "Issue #21"
                         
-[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.1.0...HEAD
+[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.1.1...HEAD
+[v2.1.1]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.1.0...v2.1.1
 [v2.1.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.0.2...v2.1.0
 [v2.0.2]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.0.1...v2.0.2
 [v2.0.1]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.0.0...v2.0.1

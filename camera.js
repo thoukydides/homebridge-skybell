@@ -223,12 +223,12 @@ module.exports = class SkyBellCameraStreamingDelegate {
                 Object.assign(session.audio, request.audio);
                 
                 // Initiate the new call
-                this.startCall(session, (err) => {
+                return this.startCall(session, (err) => {
                     if (err) {
                         this.log.error("Failed to initiate call to '"
                                        + this.name + "': " + err);
-                        return callback(err);
                     }
+                    return callback(err);
                 });
             }
             
