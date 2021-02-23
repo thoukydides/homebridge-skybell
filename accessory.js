@@ -255,10 +255,12 @@ module.exports = class SkyBellAccessory {
 
         // Publish a new list of supported resolutions (this is a hack!)
         let options = this.streamingDelegate.getCodecParameters();
-
         this.cameraController.streamManagements.forEach(management => {
+            let makeVideoStreamConfiguration =
+                management._supportedVideoStreamConfiguration
+                || management.constructor._supportedVideoStreamConfiguration;
             management.supportedVideoStreamConfiguration =
-                management._supportedVideoStreamConfiguration(options.video);
+               makeVideoStreamConfiguration(options.video);
             management.service.setCharacteristic(
                 Characteristic.SupportedVideoStreamConfiguration,
                 management.supportedVideoStreamConfiguration);
