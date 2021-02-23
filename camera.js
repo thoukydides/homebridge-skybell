@@ -38,8 +38,8 @@ const OVERLAY_ARGS = [
 
 // Possible FFmpeg commands and options in order to be tried
 const FFMPEG_COMMANDS = [
-    ['ffmpeg', ['-protocol_whitelist', 'rtp,udp,pipe']],
-    ['avconv', ['-protocol_whitelist', 'rtp,udp,pipe']],
+    ['ffmpeg', ['-protocol_whitelist', 'http,https,tls,rtp,tcp,udp,pipe']],
+    ['avconv', ['-protocol_whitelist', 'http,https,tls,rtp,tcp,udp,pipe']],
     ['ffmpeg', []],
     ['avconv', []]
 ];
