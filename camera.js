@@ -291,6 +291,7 @@ module.exports = class SkyBellCameraStreamingDelegate {
         this.skybellDevice.startCall(session.id, (err, call) => {
             if (err) return callback(err);
             // Spawn FFmpeg to transcode the video and audio streams
+            session.liveCall = true;
             this.startStream(session.id, call.incomingVideo, call.incomingAudio,
                              session.video, session.audio, callback);
         });
@@ -299,7 +300,9 @@ module.exports = class SkyBellCameraStreamingDelegate {
     // End a call
     endCall(session) {
         this.log("stopCall '" + this.name + ' (' + session.id + ")'");
-        this.skybellDevice.stopCall(session.id, () => {});
+        if (session.liveCall) {
+            this.skybellDevice.stopCall(session.id, () => {});
+        }
 
         // Kill any FFmpeg processes that have survived this long
         if (this.childProcesses[session.id]) {
