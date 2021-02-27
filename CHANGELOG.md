@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.1.2] - 2021-02-27
+### Fixed
+* Work with change to private API in Homebridge 1.3.x (used to dynamically update supported video resolutions). ([#22] / [#23])
+* Support more recent versions of FFmpeg that require `https` to be included in the whitelist protocols. ([#22])
+
+### Removed
+* Playback of recordings has been disabled (hopefully temporarily) due to an incompatibility with HomeKit. ([#22])
+
 ## [v2.1.1] - 2020-11-13
 ### Fixed
 * Corrected callback handling when starting to stream the doorbell video. ([#21])
@@ -93,7 +101,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-Copyright © 2017-2020 Alexander Thoukydides
+Copyright © 2017-2021 Alexander Thoukydides
 
 [Wiki]:                 https://github.com/thoukydides/homebridge-skybell/wiki
 [config.json]:          https://github.com/thoukydides/homebridge-skybell/wiki/config.json          "Wiki: config.json"
@@ -125,8 +133,11 @@ Copyright © 2017-2020 Alexander Thoukydides
 [#19]:                  https://github.com/thoukydides/homebridge-skybell/issues/19                 "Issue #19"
 [#20]:                  https://github.com/thoukydides/homebridge-skybell/issues/20                 "Issue #20"
 [#21]:                  https://github.com/thoukydides/homebridge-skybell/issues/21                 "Issue #21"
+[#22]:                  https://github.com/thoukydides/homebridge-skybell/issues/22                 "Issue #22"
+[#23]:                  https://github.com/thoukydides/homebridge-skybell/issues/23                 "Issue #23"
                         
-[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.1.1...HEAD
+[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.1.2...HEAD
+[v2.1.2]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.1.1...v2.1.2
 [v2.1.1]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.1.0...v2.1.1
 [v2.1.0]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.0.2...v2.1.0
 [v2.0.2]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.0.1...v2.0.2

@@ -76,7 +76,7 @@ This plugin normally uses the *avatar* image that the SkyBell HD pushes to the S
 
 ### Video and Audio Streams
 
-Viewing the doorbell's video via HomeKit will normally establish a live stream showing the current camera image. However, within 30 minutes of a video being recorded (in response to a button press or motion event) this plugin will instead play that recording. In both cases the Home and Eve apps will badge the video as *LIVE*, so to make it clear when a recording is being played this plugin superimposes a caption at the top of recorded videos. Only recordings made after Homebridge is started are played.
+Viewing the doorbell's video via HomeKit will normally establish a live stream showing the current camera image. ~~However, within 30 minutes of a video being recorded (in response to a button press or motion event) this plugin will instead play that recording. In both cases the Home and Eve apps will badge the video as *LIVE*, so to make it clear when a recording is being played this plugin superimposes a caption at the top of recorded videos. Only recordings made after Homebridge is started are played.~~
 
 Viewing the live stream from a SkyBell HD via HomeKit results in an *On demand* video being recorded, just as it does with the official SkyBell HD app. For some reason the SkyBell cloud terminates the live video stream after approximately 45 seconds when viewed via this plugin (instead of 5 minutes with the official SkyBell HD app). It is not obvious why this occurs.
 
@@ -90,7 +90,7 @@ All notable changes to this project will be documented in [CHANGELOG.md](CHANGEL
 
 ## License
 
-> ISC License (ISC)<br>Copyright © 2017-2020 Alexander Thoukydides
+> ISC License (ISC)<br>Copyright © 2017-2021 Alexander Thoukydides
 >
 > Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
 >

@@ -1,5 +1,5 @@
 // Homebridge plugin for SkyBell HD video doorbells
-// Copyright © 2017, 2018, 2020 Alexander Thoukydides
+// Copyright © 2017-2021 Alexander Thoukydides
 
 'use strict';
 
@@ -255,7 +255,8 @@ module.exports = class SkyBellCameraStreamingDelegate {
         this.log("startCall '" + this.name + ' (' + session.id + ")'");
 
         // Start a live call if there was no recent activity
-        let activity = this.activity;
+        // HERE - Temporarily disabled; see issue #22
+        let activity = null; // this.activity;
         if (!activity) return this.startLiveCall(session, callback);
         
         // Retrieve the URL for the recorded video
