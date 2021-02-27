@@ -1,5 +1,5 @@
 // Homebridge plugin for SkyBell HD video doorbells
-// Copyright © 2017, 2018, 2020 Alexander Thoukydides
+// Copyright © 2017-2021 Alexander Thoukydides
 
 'use strict';
 
