@@ -255,8 +255,7 @@ module.exports = class SkyBellCameraStreamingDelegate {
         this.log("startCall '" + this.name + ' (' + session.id + ")'");
 
         // Start a live call if there was no recent activity
-        // HERE - Temporarily disabled; see issue #22
-        let activity = null; // this.activity;
+        let activity = this.activity;
         if (!activity) return this.startLiveCall(session, callback);
         
         // Retrieve the URL for the recorded video
@@ -430,10 +429,12 @@ module.exports = class SkyBellCameraStreamingDelegate {
                 // Video encoding options (always H.264/AVC)
                 '-vcodec',         'libx264',
                 '-r',              videoOut.fps,
-                '-tune',           'zerolatency',
+                '-pix_fmt',        'yuv420p',
+                '-preset',         'ultrafast',
                 '-profile:v',      ['baseline', 'main', 'high'][videoOut.profile],
                 '-level:v',        ['3.1', '3.2', '4.0'][videoOut.level],
                 '-b:v',            videoOut.max_bit_rate + 'K',
+                '-maxrate',        videoOut.max_bit_rate + 'K',
                 '-bufsize',        videoOut.max_bit_rate + 'K'
             );
         } else {
