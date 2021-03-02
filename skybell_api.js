@@ -1,5 +1,5 @@
 // Homebridge plugin for SkyBell HD video doorbells
-// Copyright © 2017 Alexander Thoukydides
+// Copyright © 2017-2021 Alexander Thoukydides
 
 'use strict';
 
@@ -47,8 +47,10 @@ module.exports = class SkyBellAPI {
 
     // Create new API object using same credentials but different identifiers
     clone() {
-        return new SkyBellAPI(this.credentials.username,
-                              this.credentials.password, this.log);
+        let newApi = new SkyBellAPI(this.credentials.username,
+                                    this.credentials.password, this.log);
+        newApi.token = this.token;
+        return newApi;
     }
 
     // Login to the SkyBell cloud
