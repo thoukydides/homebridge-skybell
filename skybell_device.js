@@ -133,14 +133,20 @@ module.exports = class SkyBellDevice {
                          + ', SNR='     + info.wifiSnr         + 'dB'
                          + ', Quality=' + info.wifiLinkQuality + '%'
                          + ', Rate='    + info.wifiBitrate     + 'Mbps)');
-        this.cache.info = info;
-        this.options.callbackInfo(info);
+        const needKeys = ['serialNo', 'proxy_port', 'deviceId', 'localHostname', 'firmwareVersion', 'port', 'timestamp', 'address', 'proxy_address', 'wifiNoise', 'wifiBitrate', 'wifiLinkQuality', 'wifiSnr', 'mac', 'wifiTxPwrEeprom', 'hardwareRevision', 'wifiSignalLevel', 'essid', 'checkedInAt', 'status'];
+        if (needKeys.every(key => Object.keys(info).includes(key))) {
+            this.cache.info = info;
+            this.options.callbackInfo(info);
+        }
     }
 
     // Settings have been read
     newSettings(settings) {
-        this.cache.settings = settings;
-        this.options.callbackSettings(settings);
+        const needKeys = ['ring_tone', 'do_not_ring', 'do_not_disturb', 'digital_doorbell', 'video_profile', 'mic_volume', 'speaker_volume', 'chime_level', 'motion_threshold', 'low_lux_threshold', 'med_lux_threshold', 'high_lux_threshold', 'low_front_led_dac', 'med_front_led_dac', 'high_front_led_dac', 'green_r', 'green_g', 'green_b', 'led_intensity', 'motion_policy'];
+        if (needKeys.every(key => Object.keys(settings).includes(key))) {
+            this.cache.settings = settings;
+            this.options.callbackSettings(settings);
+        }
     }
 
     // Change some settings
