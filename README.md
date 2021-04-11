@@ -68,7 +68,7 @@ Apple's Home app (as of iOS 11) does not display *Doorbell* services; their char
 * Matthias Hochgatterer's [Home](http://hochgatterer.me/home/) *(recommended)*.
 * Elgato's [Eve](https://www.elgato.com/en/eve/eve-app) *(free)*.
 
-However, Apple's Home app does generate rich notifications for both doorbell button presses and motion events. These appear with a small snapshot image from the camera. A larger image and live video stream can be viewed by sliding the notification left and selecting *View*. The dootbell button notification is enabled by default, but the motion event notification has to be explicitly enabled within the app.
+However, Apple's Home app does generate rich notifications for both doorbell button presses and motion events. These appear with a small snapshot image from the camera. A larger image and live video stream can be viewed by sliding the notification left and selecting *View*. The doorbell button notification is enabled by default, but the motion event notification has to be explicitly enabled within the app.
 
 ### Snapshot Image
 
