@@ -1,3 +1,6 @@
+:warning: **This project is no longer maintained.** :warning:<br>
+**Due to my SkyBell HD failing and the difficulty of obtaining a replacement I have replaced it with a Logitech Circle View Doorbell.**
+
 <p align="center">
   <a href="https://github.com/homebridge/homebridge/wiki/Verified-Plugins"><img src="https://raw.githubusercontent.com/wiki/thoukydides/homebridge-skybell/homebridge-skybell.png" height="200"></a>
 </p>

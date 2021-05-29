@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.1.5] - 2021-05-29
+### Changed
+* This project is no longer maintained.
+
 ## [v2.1.4] - 2021-03-02
 ### Fixed
 * Re-use the existing bearer token when starting a call (live video stream) instead of repeating username/password authentication. ([#19])
@@ -17,7 +21,6 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 * Work with change to private API in Homebridge 1.3.x (used to dynamically update supported video resolutions). ([#22] / [#23])
 * Support more recent versions of FFmpeg that require `https` to be included in the whitelist protocols. ([#22])
-
 ### Removed
 * Playback of recordings has been disabled (hopefully temporarily) due to an incompatibility with HomeKit. ([#22])
 
@@ -144,8 +147,10 @@ Copyright © 2017-2021 Alexander Thoukydides
 [#21]:                  https://github.com/thoukydides/homebridge-skybell/issues/21                 "Issue #21"
 [#22]:                  https://github.com/thoukydides/homebridge-skybell/issues/22                 "Issue #22"
 [#23]:                  https://github.com/thoukydides/homebridge-skybell/issues/23                 "Issue #23"
+[#24]:                  https://github.com/thoukydides/homebridge-skybell/issues/24                 "Issue #24"
                         
-[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.1.4...HEAD
+[Unreleased]:           https://github.com/thoukydides/homebridge-skybell/compare/v2.1.5...HEAD
+[v2.1.5]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.1.4...v2.1.5
 [v2.1.4]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.1.3...v2.1.4
 [v2.1.3]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.1.2...v2.1.3
 [v2.1.2]:               https://github.com/thoukydides/homebridge-skybell/compare/v2.1.1...v2.1.2
